@@ -146,14 +146,16 @@ MonoBehaviour:
   layers:
   - basicblocks: 01000000
     metals: 
-    maxdp: 4
+    maxdp: 15
   - basicblocks: 0200000003000000
     metals: 
     maxdp: 100000
-  depth: 100
-  seed: hello\
+  depth: 50
+  seed: fff
   caveswidth: 5
   stonesshuffled: 100000
+  genall: 1
+  mountainsheight: 10
   maxlen: 0
   cnt: 0
   temp: []
@@ -235,7 +237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0516dd3b6936bdc4782d269de0161bcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 70
+  speed: 90
 --- !u!4 &279480750
 Transform:
   m_ObjectHideFlags: 0
@@ -244,7 +246,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 279480746}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 20, z: 0}
+  m_LocalPosition: {x: 0, y: 21.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 933182549}

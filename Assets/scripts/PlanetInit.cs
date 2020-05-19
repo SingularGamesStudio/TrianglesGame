@@ -13,7 +13,7 @@ public class PlanetInit : MonoBehaviour
     public GameObject baseb;
     System.Random rnd;
     public GameObject plr;
-    List<List<block.blockInit>> all = new List<List<block.blockInit>>();
+    
 
     [Header("Planet parameters")]
     public List<layer> layers = new List<layer>();
@@ -25,6 +25,8 @@ public class PlanetInit : MonoBehaviour
     public int caveswidth;
     [Tooltip("Value grows => Count of stones grows")]
     public int stonesshuffled;
+    public bool genall;
+    public int mountainsheight;
 
     int mod(int a, int b)
     {
@@ -44,7 +46,10 @@ public class PlanetInit : MonoBehaviour
         public int maxdp;
     };
     int loadstate = 0;
+    List<List<block.blockInit>> all = new List<List<block.blockInit>>();
     public List<List<block.blockInit>> alltmp = new List<List<block.blockInit>>();
+    List<List<block.blockInit>> pstruct = new List<List<block.blockInit>>();
+    List<List<block.blockInit>> ptmp = new List<List<block.blockInit>>();
     [HideInInspector]
     public int maxlen;
     [HideInInspector]
@@ -63,9 +68,14 @@ public class PlanetInit : MonoBehaviour
         for (int i = 0; i <= depth; i++)
             all.Add(new List<block.blockInit>());
         for (int i = 0; i <= depth; i++)
+            pstruct.Add(new List<block.blockInit>());
+        for (int i = 0; i <= depth; i++)
             alltmp.Add(new List<block.blockInit>());
+        for (int i = 0; i <= depth; i++)
+            ptmp.Add(new List<block.blockInit>());
         maxlen = (depth - 1) * 2 + 2;
         cnt = 0;
+        fst = true;
         main._m.load_txt("Loading planet");
         main._m.load_set(0);
         temp = new block.blockInit[maxlen * 2 + 3];
@@ -74,6 +84,7 @@ public class PlanetInit : MonoBehaviour
     }
     int layernow;
     int lastedge;
+    bool fst;
     void Update()
     {
         if (loadstate == 1) {
@@ -81,7 +92,6 @@ public class PlanetInit : MonoBehaviour
             bool endc = true;
             main._m.load_set(((float)(depth-lvnow))/depth/2f);
             for (int lv = lvnow; lv >= 0; lv--) {
-                Debug.Log(lv);
                 int len = lv + (depth - lv - 1) * 2 + 2;
                 block.blockInit left = null;
                 for (int i = -len; i <= len; i++) {
@@ -89,6 +99,7 @@ public class PlanetInit : MonoBehaviour
                     block.blockInit bn = new block.blockInit();
                     bn.pos = pos;
                     bn.baseb = baseb;
+                    bn.par = gameObject;
                     bn.Oname = (cnt++).ToString();
                     if (mod(i + lv, 2) == 0) {
                         bn.flipy();
@@ -103,12 +114,23 @@ public class PlanetInit : MonoBehaviour
                     left = bn;
                     if (abs(i) < lv + 2) {
                         all[lv].Add(bn);
+                        pstruct[lv].Add(bn);
                         bn.layer = lv;
                         bn.reslayer = lv;
                     } else {
-                        all[lv + ((abs(i) - lv) / 2)].Add(bn);
-                        bn.layer = lv + ((abs(i) - lv) / 2);
-                        bn.reslayer = lv + ((abs(i) - lv) / 2);
+                        if (i > 0) {
+                            all[lv + ((abs(i) - lv) / 2)].Add(bn);
+                            pstruct[lv + ((abs(i) - lv) / 2)].Add(bn);
+                            bn.layer = lv + ((abs(i) - lv) / 2);
+                            bn.reslayer = lv + ((abs(i) - lv) / 2);
+                        } else {
+                            all[lv + ((abs(i) - lv) / 2)].Add(bn);
+                            if(mod(i + lv, 2) == 0)
+                                pstruct[lv + ((abs(i) - lv) / 2)].Insert(1, bn);
+                            else pstruct[lv + ((abs(i) - lv) / 2)].Insert(0, bn);
+                            bn.layer = lv + ((abs(i) - lv) / 2);
+                            bn.reslayer = lv + ((abs(i) - lv) / 2);
+                        }
                     }
                 }
                 if (lv < lvnow - 10) {
@@ -120,9 +142,8 @@ public class PlanetInit : MonoBehaviour
             if (endc) {
                 loadstate++;
                 lvnow = 0;
-                
             }
-        }
+        } else
         if (loadstate == 2) {
             bool endc = true;
             main._m.load_set(((float)lvnow) / depth / 2f + 0.5f);
@@ -134,6 +155,7 @@ public class PlanetInit : MonoBehaviour
                     block.blockInit bn = new block.blockInit();
                     bn.pos = pos;
                     bn.baseb = baseb;
+                    bn.par = gameObject;
                     bn.Oname = (cnt++).ToString();
                     if (mod(i + lv, 2) == 1) {
                         bn.flipy();
@@ -147,16 +169,24 @@ public class PlanetInit : MonoBehaviour
                         left.right = bn;
                     left = bn;
                     if (abs(i) < lv + 2) {
+                        if(fst)
+                            pstruct[lv].Add(bn);
+                        else pstruct[lv].Insert(pstruct[lv].Count - 1, bn);
+                        fst = false;
                         all[lv].Add(bn);
                         bn.layer = lv;
                         bn.reslayer = lv;
                     } else {
                         if (i > 0) {
                             alltmp[lv + ((abs(i) - lv) / 2)].Add(bn);
+                            if (mod(i + lv, 2) == 0)
+                                pstruct[lv + ((abs(i) - lv) / 2)].Add(bn);
+                            else pstruct[lv + ((abs(i) - lv) / 2)].Insert(pstruct[lv + ((abs(i) - lv) / 2)].Count-1, bn);
                             bn.layer = lv + ((abs(i) - lv) / 2);
                             bn.reslayer = lv + ((abs(i) - lv) / 2);
                         } else {
                             all[lv + ((abs(i) - lv) / 2)].Add(bn);
+                            ptmp[lv + ((abs(i) - lv) / 2)].Add(bn);
                             bn.layer = lv + ((abs(i) - lv) / 2);
                             bn.reslayer = lv + ((abs(i) - lv) / 2);
                         }
@@ -178,6 +208,9 @@ public class PlanetInit : MonoBehaviour
                 for (int j = alltmp[i].Count - 1; j >= 0; j--) {
                     all[i].Add(alltmp[i][j]);
                 }
+                for (int j = ptmp[i].Count - 1; j >= 0; j--) {
+                    pstruct[i].Add(ptmp[i][j]);
+                }
                 foreach (block.blockInit b in all[i]) {
                     b.binact = true;
                 }
@@ -188,8 +221,7 @@ public class PlanetInit : MonoBehaviour
             layernow = 0;
             lvnow = depth - 1;
             lastedge = depth - 1;
-        }
-        
+        } else
         if (loadstate == 4) {
             
             bool endc = true;
@@ -273,10 +305,32 @@ public class PlanetInit : MonoBehaviour
             if (endc) {
                 loadstate++;
                 main._m.load_set(0);
-                main._m.load_txt("Loading Caves");
+                main._m.load_txt("Loading Surface");
             }
-        }
+        } else 
         if (loadstate == 5) {
+            int[] dots = new int[6];
+            dots[0] = rnd.Next(mountainsheight);
+            dots[1] = rnd.Next(mountainsheight);
+            dots[2] = rnd.Next(mountainsheight);
+            dots[3] = rnd.Next(mountainsheight);
+            dots[4] = rnd.Next(mountainsheight);
+            dots[5] = rnd.Next(mountainsheight);
+            int[] heights = new int[2 * depth - 1];
+            for(int i = 0; i<6; i++) {
+                for(int j = 0; j < 2 * depth - 1; j++) {
+                    heights[j] = -1;
+                }
+                heights[0] = 0;
+                heights[2 * depth - 2] = 0;
+                createsurface(ref heights, 0, 2 * depth - 2);
+                for (int j = 0; j < 2 * depth - 1; j++) {
+                    buildsurface(heights[j], pstruct[depth - 1][i * (2 * depth - 1) + j]);
+                }
+            }
+            loadstate++;
+        } else
+        if (loadstate == 6) {
             /*int tmp = rnd.Next(depth);
             Cavegen(tmp, 1000);
             tmp = rnd.Next(depth);
@@ -286,12 +340,13 @@ public class PlanetInit : MonoBehaviour
             tmp = rnd.Next(depth);
             Cavegen(tmp, 100);
             CavesInit();*/
-            for (int i = 0; i < depth; i++) {
+            for (int i = 0; i <= depth; i++) {
                 foreach (block.blockInit b in all[i]) {
-                    if (Vector3.Distance(b.pos, plr.transform.position) < main._m.maxpd) {
+                    if (Vector3.Distance(b.pos, plr.transform.position) < main._m.maxpd || genall) {
                         b.CreateInstance();
                     }
                 }
+                if(i!=depth && !genall)
                 foreach (block.blockInit b in all[i]) {
                     if (Vector3.Distance(b.pos, plr.transform.position) < main._m.maxpd && (b.left.cn == null || b.right.cn == null || b.up.cn == null || b.down.cn == null)) {
                         b.cn.watch = true;
@@ -333,6 +388,30 @@ public class PlanetInit : MonoBehaviour
             }
         }
         
+    }
+    void buildsurface(int d, block.blockInit b)
+    {
+        if (d == 0)
+            return;
+        try {
+            b.binact = false;
+            buildsurface(d - 1, b.down);
+        }
+        catch {
+
+        }
+    }
+    private void createsurface(ref int[] he, int l, int r)
+    {
+        if (r - l > 1) {
+            he[(r + l) / 2] = Mathf.Min(mountainsheight, Mathf.Max(0, (he[r] + he[l]) / 2 + getrnd(r-l)));
+            createsurface(ref he, l, (l + r) / 2);
+            createsurface(ref he, (l + r) / 2, r);
+        }
+    }
+    int getrnd(int sz)
+    {
+        return rnd.Next(2*sz) - sz;
     }
     void CavesInit()
     {

@@ -32,11 +32,14 @@ public class block : MonoBehaviour
         public bool binact;
         public string Oname;
         public GameObject baseb;
+        public GameObject par;
         public void CreateInstance()
         {
             GameObject g = Instantiate(baseb);
             block b = g.GetComponent<block>();
             b.prm = this;
+            g.transform.parent = par.transform;
+            g.name = Oname;
             cn = b;
             g.transform.position = pos;
             main.BInit nb = main._m.blocks[num];
