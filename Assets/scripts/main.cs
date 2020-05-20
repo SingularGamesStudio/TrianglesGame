@@ -7,6 +7,7 @@ public class main : MonoBehaviour
 {
     public static main _m;
     public float maxpd;
+    public float minpd;
     public GameObject plr;
     [Header("Ingame things lists")]
     public List<BInit> blocks = new List<BInit>();

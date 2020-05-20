@@ -25,7 +25,6 @@ public class block : MonoBehaviour
         public blockInit right;
         public blockInit up;
         public blockInit down;
-        public bool active;
         public int num;
         public int reslayer;
         public int layer;
@@ -35,30 +34,53 @@ public class block : MonoBehaviour
         public GameObject par;
         public void CreateInstance()
         {
-            GameObject g = Instantiate(baseb);
-            block b = g.GetComponent<block>();
-            b.prm = this;
-            g.transform.parent = par.transform;
-            g.name = Oname;
-            cn = b;
-            g.transform.position = pos;
-            main.BInit nb = main._m.blocks[num];
-            b.img.sprite = nb.spbase;
-            b.l.sprite = nb.spleft;
-            b.r.sprite = nb.spright;
-            b.u.sprite = nb.spup;
-            b.d.sprite = nb.spdown;
-            if (flippedy) {
-                b.img.flipX = true;
-                b.l.flipY = true;
-                b.r.flipY = true;
-                b.u.flipY = true;
-                b.d.flipY = true;
-                b.img.transform.rotation *= Quaternion.AngleAxis(180, Vector3.forward);
+            if (baseb != null) {
+                GameObject g = Instantiate(baseb);
+                block b = g.GetComponent<block>();
+                b.prm = this;
+                g.transform.parent = par.transform;
+                g.name = Oname;
+                cn = b;
+                g.transform.position = pos;
+                main.BInit nb = main._m.blocks[num];
+                b.img.sprite = nb.spbase;
+                b.l.sprite = nb.spleft;
+                b.r.sprite = nb.spright;
+                b.u.sprite = nb.spup;
+                b.d.sprite = nb.spdown;
+                if (flippedy) {
+                    b.img.flipX = true;
+                    b.l.flipY = true;
+                    b.r.flipY = true;
+                    b.u.flipY = true;
+                    b.d.flipY = true;
+                    b.img.transform.rotation *= Quaternion.AngleAxis(180, Vector3.forward);
+                }
+                if (binact)
+                    b.Act();
+                else b.UnAct();
             }
-            if (binact)
-                b.Act();
-            else b.UnAct();
+        }
+        public void DestroyInstance()
+        {
+            Destroy(cn.gameObject);
+            cn = null;
+            if (left != null && left.cn != null) {
+                left.cn.watch = true;
+                left.cn.checkwatch();
+            }
+            if (right != null && right.cn != null) {
+                right.cn.watch = true;
+                right.cn.checkwatch();
+            }
+            if (down != null && down.cn != null) {
+                down.cn.watch = true;
+                down.cn.checkwatch();
+            }
+            if (up != null && up.cn != null) {
+                up.cn.watch = true;
+                up.cn.checkwatch();
+            }
         }
         public void flipy()
         {
@@ -74,7 +96,7 @@ public class block : MonoBehaviour
     public void UnAct()
     {
         coll.isTrigger = true;
-        prm.active = false;
+        prm.binact = false;
         img.enabled = false;
         l.gameObject.SetActive(false);
         r.gameObject.SetActive(false);
@@ -92,7 +114,7 @@ public class block : MonoBehaviour
     }
     public void Act()
     {
-        prm.active = true;
+        prm.binact = true;
         img.enabled = true;
         coll.isTrigger = false;
         l.gameObject.SetActive(false);
@@ -115,14 +137,14 @@ public class block : MonoBehaviour
         r.gameObject.SetActive(false);
         u.gameObject.SetActive(false);
         d.gameObject.SetActive(false);
-        if (prm.active) {
-            if (!prm.left.active)
+        if (prm.binact) {
+            if (!prm.left.binact)
                 l.gameObject.SetActive(true);
-            if (!prm.right.active)
+            if (!prm.right.binact)
                 r.gameObject.SetActive(true);
-            if ((!prm.up.active && !prm.flippedy) || (!prm.down.active && prm.flippedy))
+            if ((!prm.up.binact && !prm.flippedy) || (!prm.down.binact && prm.flippedy))
                 u.gameObject.SetActive(true);
-            if ((!prm.down.active && !prm.flippedy) || (!prm.up.active && prm.flippedy))
+            if ((!prm.down.binact && !prm.flippedy) || (!prm.up.binact && prm.flippedy))
                 d.gameObject.SetActive(true);
         }
     }
@@ -162,6 +184,8 @@ public class block : MonoBehaviour
                 prm.up.cn.checkwatch();
             }
             watch = false;
+        } else if(Vector3.Distance(main._m.plr.transform.position, transform.position) > main._m.minpd) {
+            prm.DestroyInstance();
         }
     }
     public void Click()

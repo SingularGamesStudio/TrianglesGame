@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,7 +28,10 @@ public class PlanetInit : MonoBehaviour
     public int stonesshuffled;
     public bool genall;
     public int mountainsheight;
-
+    public float cavescoef;
+    public float cavesnumcoef;
+    List<List<block.blockInit>> pstruct = new List<List<block.blockInit>>();
+    int loadstate = 0;
     int mod(int a, int b)
     {
         return ((a % b) + b) % b;
@@ -45,19 +49,20 @@ public class PlanetInit : MonoBehaviour
         public List<int> metals;
         public int maxdp;
     };
-    int loadstate = 0;
-    List<List<block.blockInit>> all = new List<List<block.blockInit>>();
-    public List<List<block.blockInit>> alltmp = new List<List<block.blockInit>>();
-    List<List<block.blockInit>> pstruct = new List<List<block.blockInit>>();
+
+    //temporary variables
     List<List<block.blockInit>> ptmp = new List<List<block.blockInit>>();
-    [HideInInspector]
-    public int maxlen;
-    [HideInInspector]
-    public int cnt;
-    [HideInInspector]
-    public block.blockInit[] temp;
-    [HideInInspector]
-    public int lvnow = 0;
+    List<block.blockInit> abl = new List<block.blockInit>();
+    List<int> allcaves = new List<int>();
+    int maxlen;
+    int cnt;
+    block.blockInit[] temp;
+    int lvnow = 0;
+    int inow;
+    int layernow;
+    int lastedge;
+    bool fst;
+    int lastx = 0;
     void Start()
     {
         int sh = 0;
@@ -66,11 +71,7 @@ public class PlanetInit : MonoBehaviour
         }
         rnd = new System.Random(sh);
         for (int i = 0; i <= depth; i++)
-            all.Add(new List<block.blockInit>());
-        for (int i = 0; i <= depth; i++)
             pstruct.Add(new List<block.blockInit>());
-        for (int i = 0; i <= depth; i++)
-            alltmp.Add(new List<block.blockInit>());
         for (int i = 0; i <= depth; i++)
             ptmp.Add(new List<block.blockInit>());
         maxlen = (depth - 1) * 2 + 2;
@@ -82,15 +83,12 @@ public class PlanetInit : MonoBehaviour
         lvnow = depth;
         loadstate = 1;
     }
-    int layernow;
-    int lastedge;
-    bool fst;
     void Update()
     {
         if (loadstate == 1) {
-            
+
             bool endc = true;
-            main._m.load_set(((float)(depth-lvnow))/depth/2f);
+            main._m.load_set(((float)(depth - lvnow)) / depth / 2f);
             for (int lv = lvnow; lv >= 0; lv--) {
                 int len = lv + (depth - lv - 1) * 2 + 2;
                 block.blockInit left = null;
@@ -113,19 +111,16 @@ public class PlanetInit : MonoBehaviour
                         left.right = bn;
                     left = bn;
                     if (abs(i) < lv + 2) {
-                        all[lv].Add(bn);
                         pstruct[lv].Add(bn);
                         bn.layer = lv;
                         bn.reslayer = lv;
                     } else {
                         if (i > 0) {
-                            all[lv + ((abs(i) - lv) / 2)].Add(bn);
                             pstruct[lv + ((abs(i) - lv) / 2)].Add(bn);
                             bn.layer = lv + ((abs(i) - lv) / 2);
                             bn.reslayer = lv + ((abs(i) - lv) / 2);
                         } else {
-                            all[lv + ((abs(i) - lv) / 2)].Add(bn);
-                            if(mod(i + lv, 2) == 0)
+                            if (mod(i + lv, 2) == 0)
                                 pstruct[lv + ((abs(i) - lv) / 2)].Insert(1, bn);
                             else pstruct[lv + ((abs(i) - lv) / 2)].Insert(0, bn);
                             bn.layer = lv + ((abs(i) - lv) / 2);
@@ -134,7 +129,7 @@ public class PlanetInit : MonoBehaviour
                     }
                 }
                 if (lv < lvnow - 10) {
-                    lvnow = lv-1;
+                    lvnow = lv - 1;
                     endc = false;
                     break;
                 }
@@ -169,23 +164,20 @@ public class PlanetInit : MonoBehaviour
                         left.right = bn;
                     left = bn;
                     if (abs(i) < lv + 2) {
-                        if(fst)
+                        if (fst)
                             pstruct[lv].Add(bn);
                         else pstruct[lv].Insert(pstruct[lv].Count - 1, bn);
                         fst = false;
-                        all[lv].Add(bn);
                         bn.layer = lv;
                         bn.reslayer = lv;
                     } else {
                         if (i > 0) {
-                            alltmp[lv + ((abs(i) - lv) / 2)].Add(bn);
                             if (mod(i + lv, 2) == 0)
                                 pstruct[lv + ((abs(i) - lv) / 2)].Add(bn);
-                            else pstruct[lv + ((abs(i) - lv) / 2)].Insert(pstruct[lv + ((abs(i) - lv) / 2)].Count-1, bn);
+                            else pstruct[lv + ((abs(i) - lv) / 2)].Insert(pstruct[lv + ((abs(i) - lv) / 2)].Count - 1, bn);
                             bn.layer = lv + ((abs(i) - lv) / 2);
                             bn.reslayer = lv + ((abs(i) - lv) / 2);
                         } else {
-                            all[lv + ((abs(i) - lv) / 2)].Add(bn);
                             ptmp[lv + ((abs(i) - lv) / 2)].Add(bn);
                             bn.layer = lv + ((abs(i) - lv) / 2);
                             bn.reslayer = lv + ((abs(i) - lv) / 2);
@@ -193,7 +185,7 @@ public class PlanetInit : MonoBehaviour
                     }
                 }
                 if (lv > lvnow + 10) {
-                    lvnow = lv+1;
+                    lvnow = lv + 1;
                     endc = false;
                     break;
                 }
@@ -202,16 +194,13 @@ public class PlanetInit : MonoBehaviour
                 loadstate++;
                 lvnow = 0;
             }
-        }
+        } else
         if (loadstate == 3) {
             for (int i = 0; i < depth; i++) {
-                for (int j = alltmp[i].Count - 1; j >= 0; j--) {
-                    all[i].Add(alltmp[i][j]);
-                }
                 for (int j = ptmp[i].Count - 1; j >= 0; j--) {
                     pstruct[i].Add(ptmp[i][j]);
                 }
-                foreach (block.blockInit b in all[i]) {
+                foreach (block.blockInit b in pstruct[i]) {
                     b.binact = true;
                 }
             }
@@ -223,75 +212,232 @@ public class PlanetInit : MonoBehaviour
             lastedge = depth - 1;
         } else
         if (loadstate == 4) {
-            
+
             bool endc = true;
-            main._m.load_set(((float)(depth-1-lvnow))/(depth-1));
+            main._m.load_set(((float)(depth - 1 - lvnow)) / (depth - 1));
             for (int i = lvnow; i >= 0; i--) {
                 if (depth - i > layers[layernow].maxdp) {
                     layernow++;
                     lastedge = i;
                 }
-                for (int j = 0; j < all[i].Count; j++) {
-                    int rn = 0;
-                    bool nlv = false;
-                    if (all[i][j].up.num != 0) {
-                        rn++;
-                        if (all[i][j].up.reslayer >= lastedge)
+                for (int j = 0; j < pstruct[i].Count; j++) {
+                    if (i == depth - 1) {
+                        int rn1 = rnd.Next(layers[layernow].basicblocks.Count);
+                        pstruct[i][j].set(layers[layernow].basicblocks[rn1]);
+                    } else
+                    if (j == 0) {
+                        bool nlv = false;
+                        int upper = (j / (2 * i + 1)) * (2 * i + 3) + 1 + (j % (2 * i + 1));
+                        if (pstruct[i + 1][upper - 1].reslayer >= lastedge)
                             nlv = true;
-                    }
-                    if (all[i][j].down.num != 0) {
-                        rn++;
-                        if (all[i][j].down.reslayer >= lastedge)
+                        if (pstruct[i + 1][upper].reslayer >= lastedge)
                             nlv = true;
-                    }
-                    if (all[i][j].right.num != 0) {
-                        rn++;
-                        if (all[i][j].right.reslayer >= lastedge)
+                        if (pstruct[i + 1][upper + 1].reslayer >= lastedge)
                             nlv = true;
-                    }
-                    if (all[i][j].left.num != 0) {
-                        rn++;
-                        if (all[i][j].left.reslayer >= lastedge)
-                            nlv = true;
-                    }
-                    int rn1 = 0;
-                    if (rn != 0) {
+                        int rn1 = 0;
                         if (!nlv)
-                            rn1 = rnd.Next(stonesshuffled * rn);
-                        else rn1 = rnd.Next(10 * rn);
-                    }
-                    if (rn == 0 || rn1 < rn) {
-                        rn1 = rnd.Next(layers[layernow].basicblocks.Count);
-                        all[i][j].set(layers[layernow].basicblocks[rn1]);
+                            rn1 = rnd.Next(stonesshuffled * 3);
+                        else rn1 = rnd.Next(10 * 3);
+                        if (rn1 < 3) {
+                            rn1 = rnd.Next(layers[layernow].basicblocks.Count);
+                            pstruct[i][j].set(layers[layernow].basicblocks[rn1]);
+                        } else {
+                            rn1 %= 3;
+                            if (rn1 == 0) {
+                                pstruct[i][j].set(pstruct[i + 1][upper - 1].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper - 1].reslayer;
+                            }
+                            if (rn1 == 1) {
+                                pstruct[i][j].set(pstruct[i + 1][upper].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper].reslayer;
+                            }
+                            if (rn1 == 2) {
+                                pstruct[i][j].set(pstruct[i + 1][upper + 1].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper + 1].reslayer;
+                            }
+                        }
+                    } else if (j == pstruct[i].Count - 1) {
+                        bool nlv = false;
+                        if (pstruct[i][j - 1].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i][j - 2].reslayer >= lastedge)
+                            nlv = true;
+                        int upper = (j / (2 * i + 1)) * (2 * i + 3) + 1 + (j % (2 * i + 1));
+                        if (pstruct[i + 1][upper - 1].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i + 1][upper].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i + 1][upper + 1].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i][0].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i][1].reslayer >= lastedge)
+                            nlv = true;
+                        int rn1 = 0;
+                        if (!nlv)
+                            rn1 = rnd.Next(stonesshuffled * 7);
+                        else rn1 = rnd.Next(10 * 7);
+                        if (rn1 < 7) {
+                            rn1 = rnd.Next(layers[layernow].basicblocks.Count);
+                            pstruct[i][j].set(layers[layernow].basicblocks[rn1]);
+                        } else {
+                            rn1 %= 7;
+                            if (rn1 == 0) {
+                                pstruct[i][j].set(pstruct[i][j - 1].num);
+                                pstruct[i][j].reslayer = pstruct[i][j - 1].reslayer;
+                            }
+                            if (rn1 == 1) {
+                                pstruct[i][j].set(pstruct[i][j - 2].num);
+                                pstruct[i][j].reslayer = pstruct[i][j - 2].reslayer;
+                            }
+                            if (rn1 == 2) {
+                                pstruct[i][j].set(pstruct[i + 1][upper - 1].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper - 1].reslayer;
+                            }
+                            if (rn1 == 3) {
+                                pstruct[i][j].set(pstruct[i + 1][upper].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper].reslayer;
+                            }
+                            if (rn1 == 4) {
+                                pstruct[i][j].set(pstruct[i + 1][upper + 1].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper + 1].reslayer;
+                            }
+                            if (rn1 == 5) {
+                                pstruct[i][j].set(pstruct[i][0].num);
+                                pstruct[i][j].reslayer = pstruct[i][0].reslayer;
+                            }
+                            if (rn1 == 6) {
+                                pstruct[i][j].set(pstruct[i][1].num);
+                                pstruct[i][j].reslayer = pstruct[i][1].reslayer;
+                            }
+                        }
+                    } else if (j == 1) {
+                        bool nlv = false;
+                        if (pstruct[i][j - 1].reslayer >= lastedge)
+                            nlv = true;
+                        int upper = (j / (2 * i + 1)) * (2 * i + 3) + 1 + (j % (2 * i + 1));
+                        if (pstruct[i + 1][upper - 1].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i + 1][upper].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i + 1][upper + 1].reslayer >= lastedge)
+                            nlv = true;
+                        int rn1 = 0;
+                        if (!nlv)
+                            rn1 = rnd.Next(stonesshuffled * 4);
+                        else rn1 = rnd.Next(10 * 4);
+                        if (rn1 < 4) {
+                            rn1 = rnd.Next(layers[layernow].basicblocks.Count);
+                            pstruct[i][j].set(layers[layernow].basicblocks[rn1]);
+                        } else {
+                            rn1 %= 4;
+                            if (rn1 == 0) {
+                                pstruct[i][j].set(pstruct[i][j - 1].num);
+                                pstruct[i][j].reslayer = pstruct[i][j - 1].reslayer;
+                            }
+                            if (rn1 == 1) {
+                                pstruct[i][j].set(pstruct[i + 1][upper - 1].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper - 1].reslayer;
+                            }
+                            if (rn1 == 2) {
+                                pstruct[i][j].set(pstruct[i + 1][upper].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper].reslayer;
+                            }
+                            if (rn1 == 3) {
+                                pstruct[i][j].set(pstruct[i + 1][upper + 1].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper + 1].reslayer;
+                            }
+                        }
+                    } else if (j == pstruct[i].Count - 2) {
+                        bool nlv = false;
+                        if (pstruct[i][j - 1].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i][j - 2].reslayer >= lastedge)
+                            nlv = true;
+                        int upper = (j / (2 * i + 1)) * (2 * i + 3) + 1 + (j % (2 * i + 1));
+                        if (pstruct[i + 1][upper - 1].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i + 1][upper].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i + 1][upper + 1].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i][0].reslayer >= lastedge)
+                            nlv = true;
+                        int rn1 = 0;
+                        if (!nlv)
+                            rn1 = rnd.Next(stonesshuffled * 6);
+                        else rn1 = rnd.Next(10 * 6);
+                        if (rn1 < 6) {
+                            rn1 = rnd.Next(layers[layernow].basicblocks.Count);
+                            pstruct[i][j].set(layers[layernow].basicblocks[rn1]);
+                        } else {
+                            rn1 %= 6;
+                            if (rn1 == 0) {
+                                pstruct[i][j].set(pstruct[i][j - 1].num);
+                                pstruct[i][j].reslayer = pstruct[i][j - 1].reslayer;
+                            }
+                            if (rn1 == 1) {
+                                pstruct[i][j].set(pstruct[i][j - 2].num);
+                                pstruct[i][j].reslayer = pstruct[i][j - 2].reslayer;
+                            }
+                            if (rn1 == 2) {
+                                pstruct[i][j].set(pstruct[i + 1][upper - 1].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper - 1].reslayer;
+                            }
+                            if (rn1 == 3) {
+                                pstruct[i][j].set(pstruct[i + 1][upper].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper].reslayer;
+                            }
+                            if (rn1 == 4) {
+                                pstruct[i][j].set(pstruct[i + 1][upper + 1].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper + 1].reslayer;
+                            }
+                            if (rn1 == 5) {
+                                pstruct[i][j].set(pstruct[i][0].num);
+                                pstruct[i][j].reslayer = pstruct[i][0].reslayer;
+                            }
+                        }
                     } else {
-                        rn1 %= rn;
-                        rn1++;
-                        if (all[i][j].up.num != 0) {
-                            rn1--;
+                        bool nlv = false;
+                        if (pstruct[i][j - 1].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i][j - 2].reslayer >= lastedge)
+                            nlv = true;
+                        int upper = (j / (2 * i + 1)) * (2 * i + 3) + 1 + (j % (2 * i + 1));
+                        if (pstruct[i + 1][upper - 1].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i + 1][upper].reslayer >= lastedge)
+                            nlv = true;
+                        if (pstruct[i + 1][upper + 1].reslayer >= lastedge)
+                            nlv = true;
+                        int rn1 = 0;
+                        if (!nlv)
+                            rn1 = rnd.Next(stonesshuffled * 5);
+                        else rn1 = rnd.Next(10 * 5);
+                        if (rn1 < 5) {
+                            rn1 = rnd.Next(layers[layernow].basicblocks.Count);
+                            pstruct[i][j].set(layers[layernow].basicblocks[rn1]);
+                        } else {
+                            rn1 %= 5;
                             if (rn1 == 0) {
-                                all[i][j].set(all[i][j].up.num);
-                                all[i][j].reslayer = all[i][j].up.reslayer;
+                                pstruct[i][j].set(pstruct[i][j - 1].num);
+                                pstruct[i][j].reslayer = pstruct[i][j - 1].reslayer;
                             }
-                        }
-                        if (all[i][j].down.num != 0) {
-                            rn1--;
-                            if (rn1 == 0) {
-                                all[i][j].set(all[i][j].down.num);
-                                all[i][j].reslayer = all[i][j].down.reslayer;
+                            if (rn1 == 1) {
+                                pstruct[i][j].set(pstruct[i][j - 2].num);
+                                pstruct[i][j].reslayer = pstruct[i][j - 2].reslayer;
                             }
-                        }
-                        if (all[i][j].right.num != 0) {
-                            rn1--;
-                            if (rn1 == 0) {
-                                all[i][j].set(all[i][j].right.num);
-                                all[i][j].reslayer = all[i][j].right.reslayer;
+                            if (rn1 == 2) {
+                                pstruct[i][j].set(pstruct[i + 1][upper - 1].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper - 1].reslayer;
                             }
-                        }
-                        if (all[i][j].left.num != 0) {
-                            rn1--;
-                            if (rn1 == 0) {
-                                all[i][j].set(all[i][j].left.num);
-                                all[i][j].reslayer = all[i][j].left.reslayer;
+                            if (rn1 == 3) {
+                                pstruct[i][j].set(pstruct[i + 1][upper].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper].reslayer;
+                            }
+                            if (rn1 == 4) {
+                                pstruct[i][j].set(pstruct[i + 1][upper + 1].num);
+                                pstruct[i][j].reslayer = pstruct[i + 1][upper + 1].reslayer;
                             }
                         }
                     }
@@ -303,85 +449,135 @@ public class PlanetInit : MonoBehaviour
                 }
             }
             if (endc) {
+                inow = 0;
                 loadstate++;
                 main._m.load_set(0);
                 main._m.load_txt("Loading Surface");
             }
-        } else 
+        } else
         if (loadstate == 5) {
-            int[] dots = new int[6];
-            dots[0] = rnd.Next(mountainsheight);
-            dots[1] = rnd.Next(mountainsheight);
-            dots[2] = rnd.Next(mountainsheight);
-            dots[3] = rnd.Next(mountainsheight);
-            dots[4] = rnd.Next(mountainsheight);
-            dots[5] = rnd.Next(mountainsheight);
-            int[] heights = new int[2 * depth - 1];
-            for(int i = 0; i<6; i++) {
-                for(int j = 0; j < 2 * depth - 1; j++) {
+            if (inow == 0) {
+                for (int i = depth - mountainsheight; i < depth; i++) {
+                    foreach (block.blockInit b in pstruct[i]) {
+                        b.binact = false;
+                    }
+                }
+            }
+            int lnow = depth - mountainsheight - 1;
+            int[] heights = new int[2 * lnow + 1];
+
+            {
+                int i = inow;
+                for (int j = 0; j < 2 * lnow + 1; j++) {
                     heights[j] = -1;
                 }
                 heights[0] = 0;
-                heights[2 * depth - 2] = 0;
-                createsurface(ref heights, 0, 2 * depth - 2);
-                for (int j = 0; j < 2 * depth - 1; j++) {
-                    buildsurface(heights[j], pstruct[depth - 1][i * (2 * depth - 1) + j]);
+                heights[2 * lnow] = 0;
+                createsurface(ref heights, 0, 2 * lnow);
+                for (int j = 0; j < 2 * lnow + 1; j++) {
+                    buildsurface(heights[j], lnow, i * (2 * lnow + 1) + j);
                 }
+                inow++;
             }
-            loadstate++;
+            main._m.load_set(((float)inow) / 6);
+            if (inow == 6) {
+                main._m.load_set(0);
+                main._m.load_txt("Loading Caverns");
+                loadstate++;
+                lvnow = 0;
+            }
         } else
         if (loadstate == 6) {
-            /*int tmp = rnd.Next(depth);
-            Cavegen(tmp, 1000);
-            tmp = rnd.Next(depth);
-            Cavegen(tmp, 500);
-            tmp = rnd.Next(depth);
-            Cavegen(tmp, 500);
-            tmp = rnd.Next(depth);
-            Cavegen(tmp, 100);
-            CavesInit();*/
-            for (int i = 0; i <= depth; i++) {
-                foreach (block.blockInit b in all[i]) {
-                    if (Vector3.Distance(b.pos, plr.transform.position) < main._m.maxpd || genall) {
-                        b.CreateInstance();
+            if (lvnow == 0) {
+                int lnow = depth - mountainsheight * 2 - 1;
+                int pcnt = Mathf.RoundToInt(lnow * lnow * cavesnumcoef);
+                int psz = Mathf.RoundToInt(lnow * lnow * cavescoef);
+                for (int i = 0; i < pcnt; i++) {
+                    allcaves.Add(rnd.Next(psz));
+                }
+                for (int i = 0; i < lnow; i++) {
+                    foreach (block.blockInit b in pstruct[i]) {
+                        abl.Add(b);
                     }
                 }
-                if(i!=depth && !genall)
-                foreach (block.blockInit b in all[i]) {
-                    if (Vector3.Distance(b.pos, plr.transform.position) < main._m.maxpd && (b.left.cn == null || b.right.cn == null || b.up.cn == null || b.down.cn == null)) {
-                        b.cn.watch = true;
+                allcaves.Sort();
+                allcaves.Add(psz);
+            }
+            bool endd = true;
+            for (int i = lvnow; i < allcaves.Count; i++) {
+                Cavegen(abl[rnd.Next(abl.Count)], allcaves[i] - lastx);
+                lastx = allcaves[i];
+                if (i > lvnow + 5) {
+                    lvnow = i++;
+                    endd = false;
+                    break;
+                }
+            }
+            if (endd) {
+                main._m.load_set(0);
+                main._m.load_txt("Polishing edges");
+                loadstate++;
+            }
+        } else
+        if (loadstate == 7) {
+            CavesInit();
+            main._m.load_set(0);
+            main._m.load_txt("Instancing");
+            loadstate++;
+        } else
+        if (loadstate == 8) {
+            for (int i = 0; i <= depth; i++) {
+                foreach (block.blockInit b in pstruct[i]) {
+                    if (Vector3.Distance(b.pos, plr.transform.position) < main._m.maxpd || genall) {
+                        b.CreateInstance();
+                        if (!genall)
+                            b.cn.watch = true;
                     }
                 }
             }
             loadstate++;
             main._m.load_stop();
+        } else {
+            if (loadstate > 10) {
+                if (transform.childCount == 0) {
+                    for (int i = 0; i <= depth; i++) {
+                        foreach (block.blockInit b in pstruct[i]) {
+                            if (Vector3.Distance(b.pos, plr.transform.position) < main._m.maxpd) {
+                                b.CreateInstance();
+                                b.cn.watch = true;
+                            }
+                        }
+                    }
+                }
+            }
+            loadstate++;
         }
     }
-    void Cavegen(int layer, int size)
-    {
-        block.blockInit bn = all[layer][rnd.Next(all[layer].Count)];
+    
+    void Cavegen(block.blockInit bn, int size)
+    { 
         bn.binact = false;
         for(; size>0; size--) {
             int temp = rnd.Next(4);
             if (temp == 0) {
-                if (bn.up.active) {
+                if (bn.up != null) {
                     bn = bn.up;
                     bn.binact = false;
                 } else size++;
             } else if (temp == 1) {
-                if (bn.down.active) {
+                if (bn.down != null) {
                     bn = bn.down;
                     bn.binact = false;
                 } else size++;
             }
             else if(temp == 2) {
-                if (bn.right.active) {
+                if (bn.right != null) {
                     bn = bn.right;
                     bn.binact = false;
                 } else size++;
             }
             else if(temp == 3) {
-                if (bn.left.active) {
+                if (bn.left != null) {
                     bn = bn.left;
                     bn.binact = false;
                 } else size++;
@@ -389,22 +585,26 @@ public class PlanetInit : MonoBehaviour
         }
         
     }
-    void buildsurface(int d, block.blockInit b)
+    void buildsurface(int d, int i, int j)
     {
         if (d == 0)
             return;
-        try {
-            b.binact = false;
-            buildsurface(d - 1, b.down);
-        }
-        catch {
-
+        if (d > 0) {
+                pstruct[i][j].binact = false;
+            if (j % (2 * i + 1) == 0 || j % (2 * i + 1)==2*i)
+                return;
+            int upper = (j / (2 * i + 1)) * (2 * i - 1) - 1 + (j % (2 * i + 1));
+            buildsurface(d - 1, i-1, upper);
+        } else {
+            pstruct[i][j].binact = true;
+            int upper = (j / (2 * i + 1)) * (2 * i + 3) + 1 + (j % (2 * i + 1));
+            buildsurface(d + 1, i + 1, upper);
         }
     }
     private void createsurface(ref int[] he, int l, int r)
     {
         if (r - l > 1) {
-            he[(r + l) / 2] = Mathf.Min(mountainsheight, Mathf.Max(0, (he[r] + he[l]) / 2 + getrnd(r-l)));
+            he[(r + l) / 2] = Mathf.Min(mountainsheight, Mathf.Max(-mountainsheight, (he[r] + he[l]) / 2 + getrnd(r-l)));
             createsurface(ref he, l, (l + r) / 2);
             createsurface(ref he, (l + r) / 2, r);
         }
@@ -416,43 +616,45 @@ public class PlanetInit : MonoBehaviour
     void CavesInit()
     {
         for (int i = 0; i < depth; i++)
-            foreach (block.blockInit b in all[i]) {
-                int cnt = 0;
+            foreach (block.blockInit b in pstruct[i]) {
+                int cnt1 = 0;
                 {
                     if (b.left.left!=null && !b.left.left.binact)
-                        cnt++;
+                        cnt1++;
                     if (b.right.right != null && !b.right.right.binact)
-                        cnt++;
+                        cnt1++;
                     if (b.up.left != null && !b.up.left.binact)
-                        cnt++;
+                        cnt1++;
                     if (b.up.right != null && !b.up.right.binact)
-                        cnt++;
+                        cnt1++;
                     if (b.down.left != null && !b.down.left.binact)
-                        cnt++;
+                        cnt1++;
                     if (b.down.right != null && !b.down.right.binact)
-                        cnt++;
+                        cnt1++;
                     if (!b.right.binact)
-                        cnt++;
+                        cnt1++;
                     if (!b.left.binact)
-                        cnt++;
+                        cnt1++;
                     if (!b.down.binact)
-                        cnt++;
+                        cnt1++;
                     if (!b.up.binact)
-                        cnt++;
+                        cnt1++;
                     if (b.flippedy) {
                         if (b.up.right != null && b.up.right.right != null && !b.up.right.right.binact)
-                            cnt++;
+                            cnt1++;
                         if (b.up.left != null && b.up.left.left != null && !b.up.left.left.binact)
-                            cnt++;
+                            cnt1++;
                     } else {
                         if (b.down.right != null && b.down.right.right != null && !b.down.right.right.binact)
-                            cnt++;
+                            cnt1++;
                         if (b.down.left != null && b.down.left.left != null && !b.down.left.left.binact)
-                            cnt++;
+                            cnt1++;
                     }
                 }
-                //if (!b.binact || cnt>=12-caveswidth)
-                //    b.UnAct();
+                if (cnt1>=12-caveswidth)
+                    b.binact = false;
+                if (cnt1 <= caveswidth)
+                    b.binact = true;
             }
     }
 }

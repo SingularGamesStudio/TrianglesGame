@@ -146,20 +146,18 @@ MonoBehaviour:
   layers:
   - basicblocks: 01000000
     metals: 
-    maxdp: 15
+    maxdp: 26
   - basicblocks: 0200000003000000
     metals: 
     maxdp: 100000
   depth: 50
-  seed: fff
-  caveswidth: 5
+  seed: test
+  caveswidth: 4
   stonesshuffled: 100000
   genall: 1
   mountainsheight: 10
-  maxlen: 0
-  cnt: 0
-  temp: []
-  lvnow: 0
+  cavescoef: 4
+  cavesnumcoef: 0.05
 --- !u!4 &194315687
 Transform:
   m_ObjectHideFlags: 0
@@ -786,6 +784,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxpd: 5
+  minpd: 7
   plr: {fileID: 279480746}
   blocks:
   - name: 0 - test
