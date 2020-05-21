@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class blockCollHolder : MonoBehaviour
+public class BlockCollHolder : MonoBehaviour
 {
-    [Header("System variables")]
-    public block par;
+    [Header("System variAllBlockses")]
+    public Block Parent;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,6 +19,6 @@ public class blockCollHolder : MonoBehaviour
     }
     private void OnMouseUp()
     {
-        par.Click();
+        Parent.click();
     }
 }

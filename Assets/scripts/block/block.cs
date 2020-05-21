@@ -3,88 +3,98 @@ using System.Collections.Generic;
 using UnityEngine;
 using Vuforia;
 
-public class block : MonoBehaviour
+public class Block : MonoBehaviour
 {
-    [Header("System variables")]
+    [Header("System variAllBlockses")]
     
-    public Collider2D coll;
+    public Collider2D Coll;
     public SpriteRenderer img;
     public SpriteRenderer l;
     public SpriteRenderer r;
     public SpriteRenderer u;
     public SpriteRenderer d;
-    public blockInit prm;
-    public bool watch;
+    public BlockInit Params;
+    public SpriteRenderer Shade;
+    public float Lightness;
+    public bool Watch;
+    public main.LightedBlock it;
     [System.Serializable]
-    public class blockInit
+    public class BlockInit
     {
-        public block cn;
+        public Block BlockConnected;
         public Vector3 pos;
-        public bool flippedy = false;
-        public blockInit left;
-        public blockInit right;
-        public blockInit up;
-        public blockInit down;
+        public bool Flippedy = false;
+        public BlockInit Left;
+        public BlockInit Right;
+        public BlockInit Up;
+        public BlockInit Down;
         public int num;
-        public int reslayer;
-        public int layer;
-        public bool binact;
-        public string Oname;
-        public GameObject baseb;
-        public GameObject par;
-        public void CreateInstance()
+        public int ResLayer;
+        public int Layer;
+        public bool Active;
+        public int ObjectName;
+        public GameObject BaseBlock;
+        public GameObject Parent;
+        public void createInstance()
         {
-            if (baseb != null) {
-                GameObject g = Instantiate(baseb);
-                block b = g.GetComponent<block>();
-                b.prm = this;
-                g.transform.parent = par.transform;
-                g.name = Oname;
-                cn = b;
+            if (BaseBlock != null) {
+                GameObject g = Instantiate(BaseBlock);
+                Block b = g.GetComponent<Block>();
+                main._m.ActiveBlocks.Add(b);
+                b.Params = this;
+                g.transform.parent = Parent.transform;
+                g.name = ObjectName.ToString();
+                BlockConnected = b;
                 g.transform.position = pos;
-                main.BInit nb = main._m.blocks[num];
-                b.img.sprite = nb.spbase;
-                b.l.sprite = nb.spleft;
-                b.r.sprite = nb.spright;
-                b.u.sprite = nb.spup;
-                b.d.sprite = nb.spdown;
-                if (flippedy) {
+                main.BInit nb = main._m.Blocks[num];
+                b.img.sprite = nb.SpBase;
+                b.l.sprite = nb.SpLeft;
+                b.r.sprite = nb.SpRight;
+                b.u.sprite = nb.SpUp;
+                b.d.sprite = nb.SpDown;
+                if (Flippedy) {
                     b.img.flipX = true;
                     b.l.flipY = true;
                     b.r.flipY = true;
                     b.u.flipY = true;
                     b.d.flipY = true;
                     b.img.transform.rotation *= Quaternion.AngleAxis(180, Vector3.forward);
+                    b.Shade.transform.rotation *= Quaternion.AngleAxis(180, Vector3.forward);
                 }
-                if (binact)
-                    b.Act();
-                else b.UnAct();
+                if (Active)
+                    b.activate();
+                else b.unactivate();
             }
         }
-        public void DestroyInstance()
+        public void destroyInstance()
         {
-            Destroy(cn.gameObject);
-            cn = null;
-            if (left != null && left.cn != null) {
-                left.cn.watch = true;
-                left.cn.checkwatch();
+            main._m.ActiveBlocks.Remove(BlockConnected);
+            Destroy(BlockConnected.gameObject);
+            BlockConnected = null;
+            if (Left != null && Left.BlockConnected != null) {
+                Left.BlockConnected.Watch = true;
+                Left.BlockConnected.checkWatch();
             }
-            if (right != null && right.cn != null) {
-                right.cn.watch = true;
-                right.cn.checkwatch();
+            if (Right != null && Right.BlockConnected != null) {
+                Right.BlockConnected.Watch = true;
+                Right.BlockConnected.checkWatch();
             }
-            if (down != null && down.cn != null) {
-                down.cn.watch = true;
-                down.cn.checkwatch();
+            if (Down != null && Down.BlockConnected != null) {
+                Down.BlockConnected.Watch = true;
+                Down.BlockConnected.checkWatch();
             }
-            if (up != null && up.cn != null) {
-                up.cn.watch = true;
-                up.cn.checkwatch();
+            if (Up != null && Up.BlockConnected != null) {
+                Up.BlockConnected.Watch = true;
+                Up.BlockConnected.checkWatch();
             }
         }
-        public void flipy()
+        public float getLightCoeff()
         {
-            flippedy = !flippedy;
+            return 0.7f;
+        }
+        public void flipY()
+        {
+            Flippedy = !Flippedy;
         }
         public void set(int k)
         {
@@ -93,42 +103,43 @@ public class block : MonoBehaviour
     }
 
     
-    public void UnAct()
+    public void unactivate()
     {
-        coll.isTrigger = true;
-        prm.binact = false;
+        Coll.isTrigger = true;
+        Params.Active = false;
         img.enabled = false;
         l.gameObject.SetActive(false);
         r.gameObject.SetActive(false);
         u.gameObject.SetActive(false);
         d.gameObject.SetActive(false);
-        if (prm.left != null && prm.left.cn!=null)
-            prm.left.cn.upd();
-        if (prm.right != null && prm.right.cn != null)
-            prm.right.cn.upd();
-        if (prm.up != null && prm.up.cn != null)
-            prm.up.cn.upd();
-        if (prm.down != null && prm.down.cn != null)
-            prm.down.cn.upd();
+        if (Params.Left != null && Params.Left.BlockConnected!=null)
+            Params.Left.BlockConnected.upd();
+        if (Params.Right != null && Params.Right.BlockConnected != null)
+            Params.Right.BlockConnected.upd();
+        if (Params.Up != null && Params.Up.BlockConnected != null)
+            Params.Up.BlockConnected.upd();
+        if (Params.Down != null && Params.Down.BlockConnected != null)
+            Params.Down.BlockConnected.upd();
         upd();
     }
-    public void Act()
+    public void activate()
     {
-        prm.binact = true;
+        Params.Active = true;
         img.enabled = true;
-        coll.isTrigger = false;
+        Coll.isTrigger = false;
         l.gameObject.SetActive(false);
         r.gameObject.SetActive(false);
+        
         u.gameObject.SetActive(false);
         d.gameObject.SetActive(false);
-        if (prm.left != null && prm.left.cn != null)
-            prm.left.cn.upd();
-        if (prm.right != null && prm.right.cn != null)
-            prm.right.cn.upd();
-        if (prm.up != null && prm.up.cn != null)
-            prm.up.cn.upd();
-        if (prm.down != null && prm.down.cn != null)
-            prm.down.cn.upd();
+        if (Params.Left != null && Params.Left.BlockConnected != null)
+            Params.Left.BlockConnected.upd();
+        if (Params.Right != null && Params.Right.BlockConnected != null)
+            Params.Right.BlockConnected.upd();
+        if (Params.Up != null && Params.Up.BlockConnected != null)
+            Params.Up.BlockConnected.upd();
+        if (Params.Down != null && Params.Down.BlockConnected != null)
+            Params.Down.BlockConnected.upd();
         upd();
     }
     public void upd()
@@ -137,59 +148,60 @@ public class block : MonoBehaviour
         r.gameObject.SetActive(false);
         u.gameObject.SetActive(false);
         d.gameObject.SetActive(false);
-        if (prm.binact) {
-            if (!prm.left.binact)
+        if (Params.Active) {
+            if (!Params.Left.Active)
                 l.gameObject.SetActive(true);
-            if (!prm.right.binact)
+            if (!Params.Right.Active)
                 r.gameObject.SetActive(true);
-            if ((!prm.up.binact && !prm.flippedy) || (!prm.down.binact && prm.flippedy))
+            if ((!Params.Up.Active && !Params.Flippedy) || (!Params.Down.Active && Params.Flippedy))
                 u.gameObject.SetActive(true);
-            if ((!prm.down.binact && !prm.flippedy) || (!prm.up.binact && prm.flippedy))
+            if ((!Params.Down.Active && !Params.Flippedy) || (!Params.Up.Active && Params.Flippedy))
                 d.gameObject.SetActive(true);
         }
     }
-    // Start is called before the first frame update
     void Start()
     {
     }
-
-    // Update is called once per frame
     void Update()
     {
-        if (watch) {
-            checkwatch();
+        if (Watch) {
+            checkWatch();
         }
     }
-    public void checkwatch()
+    void FixedUpdate()
     {
-        if (Vector3.Distance(main._m.plr.transform.position, transform.position) < main._m.maxpd) {
-            if (prm.left != null && prm.left.cn == null) {
-                prm.left.CreateInstance();
-                prm.left.cn.watch = true;
-                prm.left.cn.checkwatch();
+        //Shade.color = new Color(Shade.color.r, Shade.color.g, Shade.color.b, Mathf.Max(1-Lightness, 0));
+    }
+    public void checkWatch()
+    {
+        if (Vector3.Distance(main._m.plr.transform.position, transform.position) < main._m.MinRenderDistance) {
+            if (Params.Left != null && Params.Left.BlockConnected == null) {
+                Params.Left.createInstance();
+                Params.Left.BlockConnected.Watch = true;
+                Params.Left.BlockConnected.checkWatch();
             }
-            if (prm.right != null && prm.right.cn == null) {
-                prm.right.CreateInstance();
-                prm.right.cn.watch = true;
-                prm.right.cn.checkwatch();
+            if (Params.Right != null && Params.Right.BlockConnected == null) {
+                Params.Right.createInstance();
+                Params.Right.BlockConnected.Watch = true;
+                Params.Right.BlockConnected.checkWatch();
             }
-            if (prm.down != null && prm.down.cn == null) {
-                prm.down.CreateInstance();
-                prm.down.cn.watch = true;
-                prm.down.cn.checkwatch();
+            if (Params.Down != null && Params.Down.BlockConnected == null) {
+                Params.Down.createInstance();
+                Params.Down.BlockConnected.Watch = true;
+                Params.Down.BlockConnected.checkWatch();
             }
-            if (prm.up != null && prm.up.cn == null) {
-                prm.up.CreateInstance();
-                prm.up.cn.watch = true;
-                prm.up.cn.checkwatch();
+            if (Params.Up != null && Params.Up.BlockConnected == null) {
+                Params.Up.createInstance();
+                Params.Up.BlockConnected.Watch = true;
+                Params.Up.BlockConnected.checkWatch();
             }
-            watch = false;
-        } else if(Vector3.Distance(main._m.plr.transform.position, transform.position) > main._m.minpd) {
-            prm.DestroyInstance();
+            Watch = false;
+        } else if(Vector3.Distance(main._m.plr.transform.position, transform.position) > main._m.MaxRenderDistance) {
+            Params.destroyInstance();
         }
     }
-    public void Click()
+    public void click()
     {
-        UnAct();
+        unactivate();
     }
 }

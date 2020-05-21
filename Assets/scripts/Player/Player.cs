@@ -6,35 +6,28 @@ using Vuforia;
 
 public class Player : MonoBehaviour
 {
-    //[Header("System variables")]
-    PhysicsO myphys;
+    //[Header("System variAllBlockses")]
+    PhysicsO MyPhys;
 
     [Header("Parameters")]
     [Range(0, 200)]
-    public float speed;
-    // Start is called before the first frame update
+    public float Speed;
     void Start()
     {
-        myphys = gameObject.GetComponent<PhysicsO>();
+        MyPhys = gameObject.GetComponent<PhysicsO>();
     }
-    Vector2 tov2(Vector3 v)
+    Vector2 toVector2(Vector3 v)
     {
         return new Vector2(v.x, v.y);
     }
-    void flip()
-    {
-    }
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetKey(KeyCode.D)) {
-            flip();
-            myphys.tomove = tov2(transform.right) * speed;
+            MyPhys.ToMove = toVector2(transform.right) * Speed;
         } else if (Input.GetKey(KeyCode.A)) {
-            flip();
-            myphys.tomove = -tov2(transform.right) * speed;
+            MyPhys.ToMove = -toVector2(transform.right) * Speed;
         } else {
-            myphys.stop();
+            MyPhys.stop();
         }
     }
 }

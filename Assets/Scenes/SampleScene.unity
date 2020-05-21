@@ -141,23 +141,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c6980d6236f6a74582aafdc34f924a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseb: {fileID: 1977948661086996296, guid: 9eb1ad8d1f45c6141852690268eb3b3e, type: 3}
+  BaseBlock: {fileID: 1977948661086996296, guid: 9eb1ad8d1f45c6141852690268eb3b3e,
+    type: 3}
   plr: {fileID: 279480746}
-  layers:
-  - basicblocks: 01000000
+  Layers:
+  - basicBlocks: 01000000
     metals: 
     maxdp: 26
-  - basicblocks: 0200000003000000
+  - basicBlocks: 0200000003000000
     metals: 
     maxdp: 100000
-  depth: 50
-  seed: test
-  caveswidth: 4
-  stonesshuffled: 100000
-  genall: 1
-  mountainsheight: 10
-  cavescoef: 4
-  cavesnumcoef: 0.05
+  Depth: 100
+  Seed: hhh
+  CavesWidth: 4
+  StonesShuffled: 100000
+  RenderAll: 0
+  MountainsHeight: 10
+  CavesSize: 2
+  CavesNumber: 0.05
 --- !u!4 &194315687
 Transform:
   m_ObjectHideFlags: 0
@@ -204,9 +205,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb29d726f7e34d3499193df073b4ab8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  planet: {fileID: 194315685}
-  state: 0
-  tomove: {x: 0, y: 0}
+  Planet: {fileID: 194315685}
+  ToMove: {x: 0, y: 0}
 --- !u!70 &279480748
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -235,7 +235,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0516dd3b6936bdc4782d269de0161bcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 90
+  Speed: 100
 --- !u!4 &279480750
 Transform:
   m_ObjectHideFlags: 0
@@ -783,37 +783,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51a75daf5810d8b40b943ac75be58134, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxpd: 5
-  minpd: 7
+  MinRenderDistance: 7
+  MaxRenderDistance: 10
+  FrameNum: 0
+  PlanetNow: {fileID: 194315686}
   plr: {fileID: 279480746}
-  blocks:
-  - name: 0 - test
-    spbase: {fileID: 21300000, guid: 9370bcbb8a6ddb54db77a99a93db0295, type: 3}
-    spleft: {fileID: 21300000, guid: 97a72b0bbee552f428f563cf39d06d36, type: 3}
-    spright: {fileID: 21300000, guid: cb9510293b82d1347a93c9d6b273af81, type: 3}
-    spup: {fileID: 21300000, guid: 30718f406ee419e4e969fc6b2b99ca64, type: 3}
-    spdown: {fileID: 21300000, guid: 5bab5e093c1841c4189ed79d48f1b845, type: 3}
-  - name: 1 - dirt
-    spbase: {fileID: 21300000, guid: a2f2138b696c6114e84ea08a9bb58ba9, type: 3}
-    spleft: {fileID: 21300000, guid: e892ce06a7364dc419b6c7926edbe154, type: 3}
-    spright: {fileID: 21300000, guid: 9b0a9750e32ecfd4fb8ae0de5d400ac3, type: 3}
-    spup: {fileID: 21300000, guid: 462149947aa213f469b2005755da4f7b, type: 3}
-    spdown: {fileID: 21300000, guid: 462ac769800fdce4b8866961176e6f00, type: 3}
-  - name: 2 - bazalt
-    spbase: {fileID: 21300000, guid: 8c7db210258eab146968531190bbdb95, type: 3}
-    spleft: {fileID: 21300000, guid: 169c4345fba250845a0fbf47344c13b7, type: 3}
-    spright: {fileID: 21300000, guid: 16fde998c4deb9a45a4d701ea589d677, type: 3}
-    spup: {fileID: 21300000, guid: 17bed01c7a1659c4b9e2c82fe2a19acc, type: 3}
-    spdown: {fileID: 21300000, guid: 887b8e3bb8c02b3449e9713388de7a02, type: 3}
-  - name: 3 - stone
-    spbase: {fileID: 21300000, guid: 602392d1859381646a661449c333056f, type: 3}
-    spleft: {fileID: 21300000, guid: 0e47bc797b67b73448be86a09e70d93e, type: 3}
-    spright: {fileID: 21300000, guid: 166464d37a72de546b918bd10c40ee3d, type: 3}
-    spup: {fileID: 21300000, guid: 1d4c32be767baa744b73a44a27b844fa, type: 3}
-    spdown: {fileID: 21300000, guid: 60664d1a038cc5247800ba8520e0f551, type: 3}
-  loadtxt: {fileID: 1320223726}
-  loadimg: {fileID: 1417351425}
-  loadfill: {fileID: 1652689164}
+  Blocks:
+  - Name: Test
+    SpBase: {fileID: 21300000, guid: 9370bcbb8a6ddb54db77a99a93db0295, type: 3}
+    SpLeft: {fileID: 21300000, guid: 97a72b0bbee552f428f563cf39d06d36, type: 3}
+    SpRight: {fileID: 21300000, guid: cb9510293b82d1347a93c9d6b273af81, type: 3}
+    SpUp: {fileID: 21300000, guid: 30718f406ee419e4e969fc6b2b99ca64, type: 3}
+    SpDown: {fileID: 21300000, guid: 5bab5e093c1841c4189ed79d48f1b845, type: 3}
+  - Name: Soil
+    SpBase: {fileID: 21300000, guid: a2f2138b696c6114e84ea08a9bb58ba9, type: 3}
+    SpLeft: {fileID: 21300000, guid: e892ce06a7364dc419b6c7926edbe154, type: 3}
+    SpRight: {fileID: 21300000, guid: 9b0a9750e32ecfd4fb8ae0de5d400ac3, type: 3}
+    SpUp: {fileID: 21300000, guid: 462149947aa213f469b2005755da4f7b, type: 3}
+    SpDown: {fileID: 21300000, guid: 462ac769800fdce4b8866961176e6f00, type: 3}
+  - Name: Stone
+    SpBase: {fileID: 21300000, guid: 602392d1859381646a661449c333056f, type: 3}
+    SpLeft: {fileID: 21300000, guid: 0e47bc797b67b73448be86a09e70d93e, type: 3}
+    SpRight: {fileID: 21300000, guid: 166464d37a72de546b918bd10c40ee3d, type: 3}
+    SpUp: {fileID: 21300000, guid: 1d4c32be767baa744b73a44a27b844fa, type: 3}
+    SpDown: {fileID: 21300000, guid: 60664d1a038cc5247800ba8520e0f551, type: 3}
+  - Name: Bazalt
+    SpBase: {fileID: 21300000, guid: 8c7db210258eab146968531190bbdb95, type: 3}
+    SpLeft: {fileID: 21300000, guid: 169c4345fba250845a0fbf47344c13b7, type: 3}
+    SpRight: {fileID: 21300000, guid: 16fde998c4deb9a45a4d701ea589d677, type: 3}
+    SpUp: {fileID: 21300000, guid: 17bed01c7a1659c4b9e2c82fe2a19acc, type: 3}
+    SpDown: {fileID: 21300000, guid: 887b8e3bb8c02b3449e9713388de7a02, type: 3}
+  LoadTxt: {fileID: 1320223726}
+  LoadImg: {fileID: 1417351425}
+  LoadFill: {fileID: 1652689164}
+  ActiveBlocks: []
 --- !u!4 &1494641957
 Transform:
   m_ObjectHideFlags: 0
