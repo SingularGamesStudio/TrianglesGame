@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Vuforia;
@@ -15,9 +16,9 @@ public class Block : MonoBehaviour
     public SpriteRenderer d;
     public BlockInit Params;
     public SpriteRenderer Shade;
-    public float Lightness;
+    
     public bool Watch;
-    public main.LightedBlock it;
+    
     [System.Serializable]
     public class BlockInit
     {
@@ -33,14 +34,19 @@ public class Block : MonoBehaviour
         public int Layer;
         public bool Active;
         public int ObjectName;
+        public float Lightness;
+        public float BasicLight;
+        public float LightPenetr;
+        public PlanetInit.LightedBlock it;
         public GameObject BaseBlock;
         public GameObject Parent;
+        public int used = 0;
         public void createInstance()
         {
             if (BaseBlock != null) {
                 GameObject g = Instantiate(BaseBlock);
                 Block b = g.GetComponent<Block>();
-                main._m.ActiveBlocks.Add(b);
+                b.Shade.color = new Color(b.Shade.color.r, b.Shade.color.g, b.Shade.color.b, /*Math.Max(0, (1 - Lightness))*/0);
                 b.Params = this;
                 g.transform.parent = Parent.transform;
                 g.name = ObjectName.ToString();
@@ -68,7 +74,6 @@ public class Block : MonoBehaviour
         }
         public void destroyInstance()
         {
-            main._m.ActiveBlocks.Remove(BlockConnected);
             Destroy(BlockConnected.gameObject);
             BlockConnected = null;
             if (Left != null && Left.BlockConnected != null) {
@@ -90,7 +95,9 @@ public class Block : MonoBehaviour
         }
         public float getLightCoeff()
         {
-            return 0.7f;
+            if (!Active)
+                return 0.99f;
+            else return LightPenetr;
         }
         public void flipY()
         {

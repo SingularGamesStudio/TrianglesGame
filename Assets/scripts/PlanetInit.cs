@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -31,6 +32,30 @@ public class PlanetInit : MonoBehaviour
     public float CavesSize;
     public float CavesNumber;
     List<List<Block.BlockInit>> PlanetStruct = new List<List<Block.BlockInit>>();
+    SortedSet<LightedBlock> ls = new SortedSet<LightedBlock>();
+    [System.Serializable]
+    public class LightedBlock: IComparable
+    {
+        public float Lightness;
+        public Block.BlockInit b;
+        public int k;
+        public LightedBlock(Block.BlockInit _b)
+        {
+            Lightness = _b.Lightness;
+            b = _b;
+            k = b.ObjectName;
+        }
+        public int CompareTo(object o)
+        {
+            LightedBlock p = o as LightedBlock;
+            if (this.Lightness != p.Lightness) {
+                return this.Lightness.CompareTo(p.Lightness);
+            } else if (this.k != p.k) {
+                return this.k.CompareTo(p.k);
+            }
+            return 0;
+        }
+    }
     int LoadState = 0;
     int mod(int a, int b)
     {
@@ -93,11 +118,15 @@ public class PlanetInit : MonoBehaviour
         } else
         if (LoadState == 5) {
             cavesInit();
+            //TODO: write loading bar from this moment
         } else
         if (LoadState == 6) {
             polish();
         } else
         if (LoadState == 7) {
+            calcLight();
+        } else
+        if (LoadState == 8) {
             instantiateInCam();
             LoadState++;
             main._m.loadStop();
@@ -219,10 +248,11 @@ public class PlanetInit : MonoBehaviour
                 }
             }
             if (EndCond) {
-                for (int i = 0; i < Depth; i++) {
+                for (int i = 0; i <= Depth; i++) {
                     for (int j = PlanetTemp[i].Count - 1; j >= 0; j--) {
                         PlanetStruct[i].Add(PlanetTemp[i][j]);
                     }
+                    if (i != Depth)
                     foreach (Block.BlockInit b in PlanetStruct[i]) {
                         b.Active = true;
                     }
@@ -654,8 +684,83 @@ public class PlanetInit : MonoBehaviour
                     b.Active = true;
             }
         main._m.loadSet(0);
+        main._m.loadTxtSet("Baking Lights");
+        LoadState++;
+    }
+    public void calcLight()
+    {
+        for (int i = 0; i <= Depth; i++) {
+            foreach (Block.BlockInit b in PlanetStruct[i]) {
+                b.LightPenetr = main._m.Blocks[b.num].LightPenetr;
+                b.BasicLight = main._m.Blocks[b.num].BasicLight;
+                if (i == Depth)
+                    b.Lightness = 25;
+                else b.Lightness = b.BasicLight;
+                b.it = new LightedBlock(b);
+                ls.Add(b.it);
+            }
+        }
+        while (ls.Count != 0) {
+            LightedBlock now = ls.Max;
+            if (now.b.Left != null) {
+                checkLightUpd(now, now.b.Left);
+            }
+            if (now.b.Right != null) {
+                checkLightUpd(now, now.b.Right);
+            }
+            if (now.b.Flippedy) {
+                if (now.b.Up != null) {
+                    checkLightUpd(now, now.b.Up);
+                }
+            } else {
+                if (now.b.Down != null) {
+                    checkLightUpd(now, now.b.Down);
+                }
+            }
+            ls.Remove(now);
+        }
         main._m.loadTxtSet("Instancing");
         LoadState++;
+    }
+    void checkLightUpd(LightedBlock now, Block.BlockInit nn)
+    {
+        if (nn != null && nn.Lightness < now.b.Lightness * now.b.getLightCoeff()) {
+            ls.Remove(nn.it);
+            nn.Lightness = now.b.Lightness * now.b.getLightCoeff();
+            nn.it.Lightness = nn.Lightness;
+            ls.Add(nn.it);
+        }
+    }
+
+    public void destroyLight(Block.BlockInit b)
+    {
+        main._m.FrameNum++;
+        b.used = main._m.FrameNum;
+        b.Lightness = -1;
+        Queue<Block.BlockInit> bfs = new Queue<Block.BlockInit>();
+        bfs.Enqueue(b);
+        while (bfs.Count != 0) {
+            Block.BlockInit BNow = bfs.Peek();
+            bfs.Dequeue();
+            if (BNow.Left.used < main._m.FrameNum) {
+                BNow.Left.Lightness = -1;
+                BNow.Left.used = main._m.FrameNum;
+                bfs.Enqueue(BNow.Left);
+            }
+            if (BNow.Right.used < main._m.FrameNum) {
+                BNow.Right.Lightness = -1;
+                BNow.Right.used = main._m.FrameNum;
+                bfs.Enqueue(BNow.Right);
+            }
+        // TODO: change Flippedy for FlippedY
+            if (BNow.Flippedy)
+            if (BNow.Right.used < main._m.FrameNum) {
+                BNow.Right.Lightness = -1;
+                BNow.Right.used = main._m.FrameNum;
+                bfs.Enqueue(BNow.Right);
+            }
+            //TODO: ...
+        }
     }
 
     void instantiateInCam()

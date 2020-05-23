@@ -151,13 +151,13 @@ MonoBehaviour:
   - basicBlocks: 0200000003000000
     metals: 
     maxdp: 100000
-  Depth: 100
-  Seed: hhh
+  Depth: 70
+  Seed: kek
   CavesWidth: 4
   StonesShuffled: 100000
-  RenderAll: 0
+  RenderAll: 1
   MountainsHeight: 10
-  CavesSize: 2
+  CavesSize: 3
   CavesNumber: 0.05
 --- !u!4 &194315687
 Transform:
@@ -790,24 +790,32 @@ MonoBehaviour:
   plr: {fileID: 279480746}
   Blocks:
   - Name: Test
+    BasicLight: 0
+    LightPenetr: 1
     SpBase: {fileID: 21300000, guid: 9370bcbb8a6ddb54db77a99a93db0295, type: 3}
     SpLeft: {fileID: 21300000, guid: 97a72b0bbee552f428f563cf39d06d36, type: 3}
     SpRight: {fileID: 21300000, guid: cb9510293b82d1347a93c9d6b273af81, type: 3}
     SpUp: {fileID: 21300000, guid: 30718f406ee419e4e969fc6b2b99ca64, type: 3}
     SpDown: {fileID: 21300000, guid: 5bab5e093c1841c4189ed79d48f1b845, type: 3}
   - Name: Soil
+    BasicLight: 0
+    LightPenetr: 0.7
     SpBase: {fileID: 21300000, guid: a2f2138b696c6114e84ea08a9bb58ba9, type: 3}
     SpLeft: {fileID: 21300000, guid: e892ce06a7364dc419b6c7926edbe154, type: 3}
     SpRight: {fileID: 21300000, guid: 9b0a9750e32ecfd4fb8ae0de5d400ac3, type: 3}
     SpUp: {fileID: 21300000, guid: 462149947aa213f469b2005755da4f7b, type: 3}
     SpDown: {fileID: 21300000, guid: 462ac769800fdce4b8866961176e6f00, type: 3}
   - Name: Stone
+    BasicLight: 0
+    LightPenetr: 0.3
     SpBase: {fileID: 21300000, guid: 602392d1859381646a661449c333056f, type: 3}
     SpLeft: {fileID: 21300000, guid: 0e47bc797b67b73448be86a09e70d93e, type: 3}
     SpRight: {fileID: 21300000, guid: 166464d37a72de546b918bd10c40ee3d, type: 3}
     SpUp: {fileID: 21300000, guid: 1d4c32be767baa744b73a44a27b844fa, type: 3}
     SpDown: {fileID: 21300000, guid: 60664d1a038cc5247800ba8520e0f551, type: 3}
   - Name: Bazalt
+    BasicLight: 0
+    LightPenetr: 0.1
     SpBase: {fileID: 21300000, guid: 8c7db210258eab146968531190bbdb95, type: 3}
     SpLeft: {fileID: 21300000, guid: 169c4345fba250845a0fbf47344c13b7, type: 3}
     SpRight: {fileID: 21300000, guid: 16fde998c4deb9a45a4d701ea589d677, type: 3}
@@ -816,7 +824,6 @@ MonoBehaviour:
   LoadTxt: {fileID: 1320223726}
   LoadImg: {fileID: 1417351425}
   LoadFill: {fileID: 1652689164}
-  ActiveBlocks: []
 --- !u!4 &1494641957
 Transform:
   m_ObjectHideFlags: 0

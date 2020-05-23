@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &924506772
 Transform:
   m_ObjectHideFlags: 0
@@ -344,15 +344,63 @@ MonoBehaviour:
     Layer: 0
     Active: 1
     ObjectName: 0
+    Lightness: 0
+    BasicLight: 0
+    it:
+      Lightness: 0
+      b:
+        BlockConnected: {fileID: 0}
+        pos: {x: 0, y: 0, z: 0}
+        Flippedy: 0
+        num: 0
+        ResLayer: 0
+        Layer: 0
+        Active: 0
+        ObjectName: 0
+        Lightness: 0
+        BasicLight: 0
+        it:
+          Lightness: 0
+          b:
+            BlockConnected: {fileID: 0}
+            pos: {x: 0, y: 0, z: 0}
+            Flippedy: 0
+            num: 0
+            ResLayer: 0
+            Layer: 0
+            Active: 0
+            ObjectName: 0
+            Lightness: 0
+            BasicLight: 0
+            it:
+              Lightness: 0
+              b:
+                BlockConnected: {fileID: 0}
+                pos: {x: 0, y: 0, z: 0}
+                Flippedy: 0
+                num: 0
+                ResLayer: 0
+                Layer: 0
+                Active: 0
+                ObjectName: 0
+                Lightness: 0
+                BasicLight: 0
+                it:
+                  Lightness: 0
+                  k: 0
+                BaseBlock: {fileID: 0}
+                Parent: {fileID: 0}
+              k: 0
+            BaseBlock: {fileID: 0}
+            Parent: {fileID: 0}
+          k: 0
+        BaseBlock: {fileID: 0}
+        Parent: {fileID: 0}
+      k: 0
     BaseBlock: {fileID: 1977948661086996296}
     Parent: {fileID: 0}
   Shade: {fileID: 924506775}
-  Lightness: 0
   Watch: 0
-  it:
-    Lightness: 0
-    b: {fileID: 0}
-    k: 0
 --- !u!1 &7059405211245041496
 GameObject:
   m_ObjectHideFlags: 0
