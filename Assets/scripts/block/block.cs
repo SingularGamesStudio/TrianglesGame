@@ -24,7 +24,7 @@ public class Block : MonoBehaviour
     {
         public Block BlockConnected;
         public Vector3 pos;
-        public bool Flippedy = false;
+        public bool FlippedY = false;
         public BlockInit Left;
         public BlockInit Right;
         public BlockInit Up;
@@ -58,7 +58,7 @@ public class Block : MonoBehaviour
                 b.r.sprite = nb.SpRight;
                 b.u.sprite = nb.SpUp;
                 b.d.sprite = nb.SpDown;
-                if (Flippedy) {
+                if (FlippedY) {
                     b.img.flipX = true;
                     b.l.flipY = true;
                     b.r.flipY = true;
@@ -101,7 +101,7 @@ public class Block : MonoBehaviour
         }
         public void flipY()
         {
-            Flippedy = !Flippedy;
+            FlippedY = !FlippedY;
         }
         public void set(int k)
         {
@@ -160,9 +160,9 @@ public class Block : MonoBehaviour
                 l.gameObject.SetActive(true);
             if (!Params.Right.Active)
                 r.gameObject.SetActive(true);
-            if ((!Params.Up.Active && !Params.Flippedy) || (!Params.Down.Active && Params.Flippedy))
+            if ((!Params.Up.Active && !Params.FlippedY) || (!Params.Down.Active && Params.FlippedY))
                 u.gameObject.SetActive(true);
-            if ((!Params.Down.Active && !Params.Flippedy) || (!Params.Up.Active && Params.Flippedy))
+            if ((!Params.Down.Active && !Params.FlippedY) || (!Params.Up.Active && Params.FlippedY))
                 d.gameObject.SetActive(true);
         }
     }
@@ -177,7 +177,7 @@ public class Block : MonoBehaviour
     }
     void FixedUpdate()
     {
-        //Shade.color = new Color(Shade.color.r, Shade.color.g, Shade.color.b, Mathf.Max(1-Lightness, 0));
+        //Shade.color = new Color(Shade.color.r, Shade.color.g, Shade.color.b, Mathf.Max(1-Params.Lightness, 0));
     }
     public void checkWatch()
     {

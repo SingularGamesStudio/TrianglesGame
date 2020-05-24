@@ -666,7 +666,7 @@ public class PlanetInit : MonoBehaviour
                         cnt1++;
                     if (!b.Up.Active)
                         cnt1++;
-                    if (b.Flippedy) {
+                    if (b.FlippedY) {
                         if (b.Up.Right != null && b.Up.Right.Right != null && !b.Up.Right.Right.Active)
                             cnt1++;
                         if (b.Up.Left != null && b.Up.Left.Left != null && !b.Up.Left.Left.Active)
@@ -708,7 +708,7 @@ public class PlanetInit : MonoBehaviour
             if (now.b.Right != null) {
                 checkLightUpd(now, now.b.Right);
             }
-            if (now.b.Flippedy) {
+            if (now.b.FlippedY) {
                 if (now.b.Up != null) {
                     checkLightUpd(now, now.b.Up);
                 }
@@ -737,27 +737,33 @@ public class PlanetInit : MonoBehaviour
         main._m.FrameNum++;
         b.used = main._m.FrameNum;
         b.Lightness = -1;
-        Queue<Block.BlockInit> bfs = new Queue<Block.BlockInit>();
-        bfs.Enqueue(b);
+        Queue<LightedBlock> bfs = new Queue<LightedBlock>();
+        bfs.Enqueue(new LightedBlock(b));
         while (bfs.Count != 0) {
-            Block.BlockInit BNow = bfs.Peek();
+            LightedBlock BNow = bfs.Peek();
             bfs.Dequeue();
-            if (BNow.Left.used < main._m.FrameNum) {
-                BNow.Left.Lightness = -1;
-                BNow.Left.used = main._m.FrameNum;
-                bfs.Enqueue(BNow.Left);
+            if (BNow.b.Left.used < main._m.FrameNum) {
+                BNow.b.Left.Lightness = -1;
+                BNow.b.Left.used = main._m.FrameNum;
+                bfs.Enqueue(new LightedBlock(BNow.b.Left));
             }
-            if (BNow.Right.used < main._m.FrameNum) {
-                BNow.Right.Lightness = -1;
-                BNow.Right.used = main._m.FrameNum;
-                bfs.Enqueue(BNow.Right);
+            if (BNow.b.Right.used < main._m.FrameNum) {
+                BNow.b.Right.Lightness = -1;
+                BNow.b.Right.used = main._m.FrameNum;
+                bfs.Enqueue(new LightedBlock(BNow.b.Right));
             }
-        // TODO: change Flippedy for FlippedY
-            if (BNow.Flippedy)
-            if (BNow.Right.used < main._m.FrameNum) {
-                BNow.Right.Lightness = -1;
-                BNow.Right.used = main._m.FrameNum;
-                bfs.Enqueue(BNow.Right);
+            if (BNow.b.FlippedY) {
+                if (BNow.b.Up.used < main._m.FrameNum) {
+                    BNow.b.Up.Lightness = -1;
+                    BNow.b.Up.used = main._m.FrameNum;
+                    bfs.Enqueue(new LightedBlock(BNow.b.Up));
+                }
+            } else {
+                if (BNow.b.Down.used < main._m.FrameNum) {
+                    BNow.b.Down.Lightness = -1;
+                    BNow.b.Down.used = main._m.FrameNum;
+                    bfs.Enqueue(new LightedBlock(BNow.b.Down));
+                }
             }
             //TODO: ...
         }

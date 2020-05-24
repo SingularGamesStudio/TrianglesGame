@@ -151,8 +151,8 @@ MonoBehaviour:
   - basicBlocks: 0200000003000000
     metals: 
     maxdp: 100000
-  Depth: 70
-  Seed: kek
+  Depth: 100
+  Seed: ufo
   CavesWidth: 4
   StonesShuffled: 100000
   RenderAll: 1
