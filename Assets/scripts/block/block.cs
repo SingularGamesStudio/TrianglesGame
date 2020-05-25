@@ -42,12 +42,19 @@ public class Block : MonoBehaviour
         public GameObject BaseBlock;
         public PlanetInit Parent;
         public int used = 0;
-        public string updby;
         public void createInstance()
         {
             if (BaseBlock != null) {
-                GameObject g = Instantiate(BaseBlock);
-                Block b = g.GetComponent<Block>();
+                GameObject g = null;
+                Block b = null;
+                if (main._m.Pool.Count == 0) {
+                    g = Instantiate(BaseBlock);
+                    b = g.GetComponent<Block>();
+                } else {
+                    b = main._m.Pool.Pop();
+                    g = b.gameObject;
+                    g.SetActive(true);
+                }
                 b.Shade.color = new Color(b.Shade.color.r, b.Shade.color.g, b.Shade.color.b, /*Math.Max(0, (1 - Lightness))*/0);
                 b.Params = this;
                 g.transform.parent = Parent.transform;
@@ -61,6 +68,8 @@ public class Block : MonoBehaviour
                 b.u.sprite = nb.SpUp;
                 b.d.sprite = nb.SpDown;
                 b.Shade.color = new Color(b.Shade.color.r, b.Shade.color.g, b.Shade.color.b, Mathf.Max(1 - Lightness, 0));
+                b.img.transform.rotation = Quaternion.identity;
+                b.Shade.transform.rotation = Quaternion.identity;
                 if (FlippedY) {
                     b.img.flipX = true;
                     b.l.flipY = true;
@@ -69,6 +78,12 @@ public class Block : MonoBehaviour
                     b.d.flipY = true;
                     b.img.transform.rotation *= Quaternion.AngleAxis(180, Vector3.forward);
                     b.Shade.transform.rotation *= Quaternion.AngleAxis(180, Vector3.forward);
+                } else {
+                    b.img.flipX = false;
+                    b.l.flipY = false;
+                    b.r.flipY = false;
+                    b.u.flipY = false;
+                    b.d.flipY = false;
                 }
                 if (Active)
                     b.activate();
@@ -82,7 +97,10 @@ public class Block : MonoBehaviour
         }
         public void destroyInstance()
         {
-            Destroy(BlockConnected.gameObject);
+            main._m.Pool.Push(BlockConnected);
+            BlockConnected.gameObject.SetActive(false);
+            BlockConnected.gameObject.name = "afk";
+            BlockConnected.Params = null;
             BlockConnected = null;
             if (Left != null && Left.BlockConnected != null) {
                 Left.BlockConnected.Watch = true;
@@ -104,13 +122,13 @@ public class Block : MonoBehaviour
         public float getLightCoeff()
         {
             if (!Active)
-                return 0.75f;
+                return 0.8f;
             else return LightPenetr;
         }
         public float getBasicLight()
         {
             if (Layer > Parent.Depth - 3 * Parent.MountainsHeight && !Active)
-                return 2;
+                return 4;
             if (!Active)
                 return 0;
             else return BasicLight;
@@ -181,18 +199,11 @@ public class Block : MonoBehaviour
                 d.gameObject.SetActive(true);
         }
     }
-    void Start()
-    {
-    }
     void Update()
     {
         if (Watch) {
             checkWatch();
         }
-    }
-    void FixedUpdate()
-    {
-        
     }
     public void checkWatch()
     {

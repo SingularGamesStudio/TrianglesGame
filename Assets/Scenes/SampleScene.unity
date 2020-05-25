@@ -235,7 +235,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0516dd3b6936bdc4782d269de0161bcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 70
+  Speed: 100
 --- !u!4 &279480750
 Transform:
   m_ObjectHideFlags: 0
@@ -807,7 +807,7 @@ MonoBehaviour:
     SpDown: {fileID: 21300000, guid: 462ac769800fdce4b8866961176e6f00, type: 3}
   - Name: Stone
     BasicLight: 0
-    LightPenetr: 0.3
+    LightPenetr: 0.6
     SpBase: {fileID: 21300000, guid: 602392d1859381646a661449c333056f, type: 3}
     SpLeft: {fileID: 21300000, guid: 0e47bc797b67b73448be86a09e70d93e, type: 3}
     SpRight: {fileID: 21300000, guid: 166464d37a72de546b918bd10c40ee3d, type: 3}
@@ -815,7 +815,7 @@ MonoBehaviour:
     SpDown: {fileID: 21300000, guid: 60664d1a038cc5247800ba8520e0f551, type: 3}
   - Name: Bazalt
     BasicLight: 0
-    LightPenetr: 0.1
+    LightPenetr: 0.5
     SpBase: {fileID: 21300000, guid: 8c7db210258eab146968531190bbdb95, type: 3}
     SpLeft: {fileID: 21300000, guid: 169c4345fba250845a0fbf47344c13b7, type: 3}
     SpRight: {fileID: 21300000, guid: 16fde998c4deb9a45a4d701ea589d677, type: 3}

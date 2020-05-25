@@ -704,6 +704,7 @@ public class PlanetInit : MonoBehaviour
         main._m.loadTxtSet("Baking Lights");
         LoadState++;
     }
+
     public void calcLight()
     {
         AllBlocks.Clear();
@@ -731,18 +732,15 @@ public class PlanetInit : MonoBehaviour
             b.UpdateLightness();
         AllBlocks.Clear();
     }
-    
     void checkLightUpd(LightedBlock now, Block.BlockInit nn)
     {
         if (nn != null && nn.Lightness < now.b.Lightness * nn.getLightCoeff()) {
-            nn.updby += " "+now.b.ObjectName.ToString();
             ls.Remove(nn.it);
             nn.Lightness = now.b.Lightness * nn.getLightCoeff();
             nn.it = new LightedBlock(nn);
             ls.Add(nn.it);
         }
     }
-
     public void updLight(Block.BlockInit b)
     {
         main._m.FrameNum++;

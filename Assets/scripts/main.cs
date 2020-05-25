@@ -15,6 +15,7 @@ public class main : MonoBehaviour
     public GameObject plr;
     [Header("Ingame things lists")]
     public List<BInit> Blocks = new List<BInit>();
+    public Stack<Block> Pool = new Stack<Block>();
 
     [Header("Loading screen")]
     public Text LoadTxt;
