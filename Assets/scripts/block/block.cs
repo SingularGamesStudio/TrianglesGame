@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.UIElements;
 using Vuforia;
 
 public class Block : MonoBehaviour
@@ -39,8 +40,9 @@ public class Block : MonoBehaviour
         public float LightPenetr;
         public PlanetInit.LightedBlock it;
         public GameObject BaseBlock;
-        public GameObject Parent;
+        public PlanetInit Parent;
         public int used = 0;
+        public string updby;
         public void createInstance()
         {
             if (BaseBlock != null) {
@@ -58,6 +60,7 @@ public class Block : MonoBehaviour
                 b.r.sprite = nb.SpRight;
                 b.u.sprite = nb.SpUp;
                 b.d.sprite = nb.SpDown;
+                b.Shade.color = new Color(b.Shade.color.r, b.Shade.color.g, b.Shade.color.b, Mathf.Max(1 - Lightness, 0));
                 if (FlippedY) {
                     b.img.flipX = true;
                     b.l.flipY = true;
@@ -69,8 +72,13 @@ public class Block : MonoBehaviour
                 }
                 if (Active)
                     b.activate();
-                else b.unactivate();
+                else b.unActivate();
             }
+        }
+        public void UpdateLightness()
+        {
+            if(BlockConnected!=null)
+                BlockConnected.Shade.color = new Color(BlockConnected.Shade.color.r, BlockConnected.Shade.color.g, BlockConnected.Shade.color.b, Mathf.Max(1 - Lightness, 0));
         }
         public void destroyInstance()
         {
@@ -96,8 +104,16 @@ public class Block : MonoBehaviour
         public float getLightCoeff()
         {
             if (!Active)
-                return 0.99f;
+                return 0.75f;
             else return LightPenetr;
+        }
+        public float getBasicLight()
+        {
+            if (Layer > Parent.Depth - 3 * Parent.MountainsHeight && !Active)
+                return 2;
+            if (!Active)
+                return 0;
+            else return BasicLight;
         }
         public void flipY()
         {
@@ -110,7 +126,7 @@ public class Block : MonoBehaviour
     }
 
     
-    public void unactivate()
+    public void unActivate()
     {
         Coll.isTrigger = true;
         Params.Active = false;
@@ -136,7 +152,6 @@ public class Block : MonoBehaviour
         Coll.isTrigger = false;
         l.gameObject.SetActive(false);
         r.gameObject.SetActive(false);
-        
         u.gameObject.SetActive(false);
         d.gameObject.SetActive(false);
         if (Params.Left != null && Params.Left.BlockConnected != null)
@@ -177,7 +192,7 @@ public class Block : MonoBehaviour
     }
     void FixedUpdate()
     {
-        //Shade.color = new Color(Shade.color.r, Shade.color.g, Shade.color.b, Mathf.Max(1-Params.Lightness, 0));
+        
     }
     public void checkWatch()
     {
@@ -209,6 +224,9 @@ public class Block : MonoBehaviour
     }
     public void click()
     {
-        unactivate();
+        if (Params.Active) {
+            unActivate();
+            Params.Parent.updLight(Params);
+        }
     }
 }

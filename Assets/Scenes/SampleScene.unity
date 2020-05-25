@@ -155,7 +155,7 @@ MonoBehaviour:
   Seed: ufo
   CavesWidth: 4
   StonesShuffled: 100000
-  RenderAll: 1
+  RenderAll: 0
   MountainsHeight: 10
   CavesSize: 3
   CavesNumber: 0.05
@@ -235,7 +235,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0516dd3b6936bdc4782d269de0161bcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 100
+  Speed: 70
 --- !u!4 &279480750
 Transform:
   m_ObjectHideFlags: 0

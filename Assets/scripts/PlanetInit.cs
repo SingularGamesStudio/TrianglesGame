@@ -33,7 +33,6 @@ public class PlanetInit : MonoBehaviour
     public float CavesNumber;
     List<List<Block.BlockInit>> PlanetStruct = new List<List<Block.BlockInit>>();
     SortedSet<LightedBlock> ls = new SortedSet<LightedBlock>();
-    [System.Serializable]
     public class LightedBlock: IComparable
     {
         public float Lightness;
@@ -42,6 +41,12 @@ public class PlanetInit : MonoBehaviour
         public LightedBlock(Block.BlockInit _b)
         {
             Lightness = _b.Lightness;
+            b = _b;
+            k = b.ObjectName;
+        }
+        public LightedBlock(Block.BlockInit _b, float _l)
+        {
+            Lightness = _l;
             b = _b;
             k = b.ObjectName;
         }
@@ -125,6 +130,8 @@ public class PlanetInit : MonoBehaviour
         } else
         if (LoadState == 7) {
             calcLight();
+            main._m.loadTxtSet("Instancing");
+            LoadState++;
         } else
         if (LoadState == 8) {
             instantiateInCam();
@@ -154,7 +161,7 @@ public class PlanetInit : MonoBehaviour
                     Block.BlockInit BNew = new Block.BlockInit();
                     BNew.pos = pos;
                     BNew.BaseBlock = BaseBlock;
-                    BNew.Parent = gameObject;
+                    BNew.Parent = this;
                     BNew.ObjectName = BlockNum++;
                     if (mod(i + lv, 2) == 0) {
                         BNew.flipY();
@@ -207,7 +214,7 @@ public class PlanetInit : MonoBehaviour
                     Block.BlockInit BNew = new Block.BlockInit();
                     BNew.pos = pos;
                     BNew.BaseBlock = BaseBlock;
-                    BNew.Parent = gameObject;
+                    BNew.Parent = this;
                     BNew.ObjectName = BlockNum++;
                     if (mod(i + lv, 2) == 1) {
                         BNew.flipY();
@@ -683,23 +690,23 @@ public class PlanetInit : MonoBehaviour
                 if (cnt1 <= CavesWidth)
                     b.Active = true;
             }
+        ls.Clear();
+        for (int i = 0; i <= Depth; i++) {
+            foreach (Block.BlockInit b in PlanetStruct[i]) {
+                b.LightPenetr = main._m.Blocks[b.num].LightPenetr;
+                b.BasicLight = main._m.Blocks[b.num].BasicLight;
+                b.Lightness = b.getBasicLight();
+                b.it = new LightedBlock(b);
+                ls.Add(b.it);
+            }
+        }
         main._m.loadSet(0);
         main._m.loadTxtSet("Baking Lights");
         LoadState++;
     }
     public void calcLight()
     {
-        for (int i = 0; i <= Depth; i++) {
-            foreach (Block.BlockInit b in PlanetStruct[i]) {
-                b.LightPenetr = main._m.Blocks[b.num].LightPenetr;
-                b.BasicLight = main._m.Blocks[b.num].BasicLight;
-                if (i == Depth)
-                    b.Lightness = 25;
-                else b.Lightness = b.BasicLight;
-                b.it = new LightedBlock(b);
-                ls.Add(b.it);
-            }
-        }
+        AllBlocks.Clear();
         while (ls.Count != 0) {
             LightedBlock now = ls.Max;
             if (now.b.Left != null) {
@@ -717,56 +724,96 @@ public class PlanetInit : MonoBehaviour
                     checkLightUpd(now, now.b.Down);
                 }
             }
+            AllBlocks.Add(now.b);
             ls.Remove(now);
         }
-        main._m.loadTxtSet("Instancing");
-        LoadState++;
+        foreach (Block.BlockInit b in AllBlocks)
+            b.UpdateLightness();
+        AllBlocks.Clear();
     }
+    
     void checkLightUpd(LightedBlock now, Block.BlockInit nn)
     {
-        if (nn != null && nn.Lightness < now.b.Lightness * now.b.getLightCoeff()) {
+        if (nn != null && nn.Lightness < now.b.Lightness * nn.getLightCoeff()) {
+            nn.updby += " "+now.b.ObjectName.ToString();
             ls.Remove(nn.it);
-            nn.Lightness = now.b.Lightness * now.b.getLightCoeff();
-            nn.it.Lightness = nn.Lightness;
+            nn.Lightness = now.b.Lightness * nn.getLightCoeff();
+            nn.it = new LightedBlock(nn);
             ls.Add(nn.it);
         }
     }
 
-    public void destroyLight(Block.BlockInit b)
+    public void updLight(Block.BlockInit b)
     {
         main._m.FrameNum++;
         b.used = main._m.FrameNum;
-        b.Lightness = -1;
         Queue<LightedBlock> bfs = new Queue<LightedBlock>();
-        bfs.Enqueue(new LightedBlock(b));
+        if(b.Lightness > b.getBasicLight())
+            bfs.Enqueue(new LightedBlock(b, b.Lightness));
+        else bfs.Enqueue(new LightedBlock(b, b.getBasicLight()));
+        b.Lightness = b.getBasicLight();
+        ls.Clear();
+        List<Block.BlockInit> edge = new List<Block.BlockInit>();
         while (bfs.Count != 0) {
             LightedBlock BNow = bfs.Peek();
             bfs.Dequeue();
-            if (BNow.b.Left.used < main._m.FrameNum) {
-                BNow.b.Left.Lightness = -1;
-                BNow.b.Left.used = main._m.FrameNum;
-                bfs.Enqueue(new LightedBlock(BNow.b.Left));
+            BNow.b.it = new LightedBlock(BNow.b);
+            
+            ls.Add(BNow.b.it);
+            if (BNow.Lightness <= 0.01f) {
+                edge.Add(BNow.b);
+                continue;
             }
-            if (BNow.b.Right.used < main._m.FrameNum) {
-                BNow.b.Right.Lightness = -1;
+            if (BNow.b.Left!=null && BNow.b.Left.used < main._m.FrameNum) {
+                BNow.b.Left.Lightness = BNow.b.Left.getBasicLight();
+                BNow.b.Left.used = main._m.FrameNum;
+                bfs.Enqueue(new LightedBlock(BNow.b.Left, BNow.Lightness * BNow.b.Left.getLightCoeff()));
+            }
+            if (BNow.b.Right != null && BNow.b.Right.used < main._m.FrameNum) {
+                BNow.b.Right.Lightness = BNow.b.Right.getBasicLight();
                 BNow.b.Right.used = main._m.FrameNum;
-                bfs.Enqueue(new LightedBlock(BNow.b.Right));
+                bfs.Enqueue(new LightedBlock(BNow.b.Right, BNow.Lightness * BNow.b.Right.getLightCoeff()));
             }
             if (BNow.b.FlippedY) {
-                if (BNow.b.Up.used < main._m.FrameNum) {
-                    BNow.b.Up.Lightness = -1;
+                if (BNow.b.Up != null && BNow.b.Up.used < main._m.FrameNum) {
+                    BNow.b.Up.Lightness = BNow.b.Up.getBasicLight();
                     BNow.b.Up.used = main._m.FrameNum;
-                    bfs.Enqueue(new LightedBlock(BNow.b.Up));
+                    bfs.Enqueue(new LightedBlock(BNow.b.Up, BNow.Lightness * BNow.b.Up.getLightCoeff()));
                 }
             } else {
-                if (BNow.b.Down.used < main._m.FrameNum) {
-                    BNow.b.Down.Lightness = -1;
+                if (BNow.b.Down != null && BNow.b.Down.used < main._m.FrameNum) {
+                    BNow.b.Down.Lightness = BNow.b.Down.getBasicLight();
                     BNow.b.Down.used = main._m.FrameNum;
-                    bfs.Enqueue(new LightedBlock(BNow.b.Down));
+                    bfs.Enqueue(new LightedBlock(BNow.b.Down, BNow.Lightness * BNow.b.Down.getLightCoeff()));
                 }
             }
-            //TODO: ...
         }
+        foreach(Block.BlockInit b1 in edge) {
+            if (b1.Left != null && b1.Left.used < main._m.FrameNum) {
+                b1.Left.used = main._m.FrameNum;
+                b1.Left.it = new LightedBlock(b1.Left);
+                ls.Add(b1.Left.it);
+            }
+            if (b1.Right != null && b1.Right.used < main._m.FrameNum) {
+                b1.Right.used = main._m.FrameNum;
+                b1.Right.it = new LightedBlock(b1.Right);
+                ls.Add(b1.Right.it);
+            }
+            if (b1.FlippedY) {
+                if (b1.Up != null && b1.Up.used < main._m.FrameNum) {
+                    b1.Up.used = main._m.FrameNum;
+                    b1.Up.it = new LightedBlock(b1.Up);
+                    ls.Add(b1.Up.it);
+                }
+            } else {
+                if (b1.Down != null && b1.Down.used < main._m.FrameNum) {
+                    b1.Down.used = main._m.FrameNum;
+                    b1.Down.it = new LightedBlock(b1.Down);
+                    ls.Add(b1.Down.it);
+                }
+            }
+        }
+        calcLight();
     }
 
     void instantiateInCam()
