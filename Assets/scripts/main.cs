@@ -10,6 +10,7 @@ public class main : MonoBehaviour
     public static main _m;
     public float MinRenderDistance;
     public float MaxRenderDistance;
+    public int BlockInHand;
     public int FrameNum = 0;
     public PlanetInit PlanetNow;
     public GameObject plr;

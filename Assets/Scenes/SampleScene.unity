@@ -785,13 +785,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MinRenderDistance: 7
   MaxRenderDistance: 10
+  BlockInHand: 0
   FrameNum: 0
   PlanetNow: {fileID: 194315686}
   plr: {fileID: 279480746}
   Blocks:
   - Name: Test
-    BasicLight: 0
-    LightPenetr: 1
+    BasicLight: 8
+    LightPenetr: 0.7
     SpBase: {fileID: 21300000, guid: 9370bcbb8a6ddb54db77a99a93db0295, type: 3}
     SpLeft: {fileID: 21300000, guid: 97a72b0bbee552f428f563cf39d06d36, type: 3}
     SpRight: {fileID: 21300000, guid: cb9510293b82d1347a93c9d6b273af81, type: 3}

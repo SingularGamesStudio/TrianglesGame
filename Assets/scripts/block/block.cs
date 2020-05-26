@@ -55,7 +55,6 @@ public class Block : MonoBehaviour
                     g = b.gameObject;
                     g.SetActive(true);
                 }
-                b.Shade.color = new Color(b.Shade.color.r, b.Shade.color.g, b.Shade.color.b, /*Math.Max(0, (1 - Lightness))*/0);
                 b.Params = this;
                 g.transform.parent = Parent.transform;
                 g.name = ObjectName.ToString();
@@ -67,6 +66,8 @@ public class Block : MonoBehaviour
                 b.r.sprite = nb.SpRight;
                 b.u.sprite = nb.SpUp;
                 b.d.sprite = nb.SpDown;
+                BasicLight = nb.BasicLight;
+                LightPenetr = nb.LightPenetr;
                 b.Shade.color = new Color(b.Shade.color.r, b.Shade.color.g, b.Shade.color.b, Mathf.Max(1 - Lightness, 0));
                 b.img.transform.rotation = Quaternion.identity;
                 b.Shade.transform.rotation = Quaternion.identity;
@@ -139,7 +140,19 @@ public class Block : MonoBehaviour
         }
         public void set(int k)
         {
-            num = k;
+            if (BlockConnected == null) {
+                num = k;
+            } else {
+                num = k;
+                main.BInit nb = main._m.Blocks[num];
+                BlockConnected.img.sprite = nb.SpBase;
+                BlockConnected.l.sprite = nb.SpLeft;
+                BlockConnected.r.sprite = nb.SpRight;
+                BlockConnected.u.sprite = nb.SpUp;
+                BlockConnected.d.sprite = nb.SpDown;
+                BasicLight = nb.BasicLight;
+                LightPenetr = nb.LightPenetr;
+            }
         }
     }
 
@@ -149,10 +162,6 @@ public class Block : MonoBehaviour
         Coll.isTrigger = true;
         Params.Active = false;
         img.enabled = false;
-        l.gameObject.SetActive(false);
-        r.gameObject.SetActive(false);
-        u.gameObject.SetActive(false);
-        d.gameObject.SetActive(false);
         if (Params.Left != null && Params.Left.BlockConnected!=null)
             Params.Left.BlockConnected.upd();
         if (Params.Right != null && Params.Right.BlockConnected != null)
@@ -168,10 +177,6 @@ public class Block : MonoBehaviour
         Params.Active = true;
         img.enabled = true;
         Coll.isTrigger = false;
-        l.gameObject.SetActive(false);
-        r.gameObject.SetActive(false);
-        u.gameObject.SetActive(false);
-        d.gameObject.SetActive(false);
         if (Params.Left != null && Params.Left.BlockConnected != null)
             Params.Left.BlockConnected.upd();
         if (Params.Right != null && Params.Right.BlockConnected != null)
@@ -237,6 +242,10 @@ public class Block : MonoBehaviour
     {
         if (Params.Active) {
             unActivate();
+            Params.Parent.updLight(Params);
+        } else {
+            Params.set(main._m.BlockInHand);
+            activate();
             Params.Parent.updLight(Params);
         }
     }
