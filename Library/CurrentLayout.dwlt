@@ -115,7 +115,7 @@ MonoBehaviour:
   m_MinSize: {x: 713, y: 498}
   m_MaxSize: {x: 18008, y: 14048}
   vertical: 0
-  controlID: 51
+  controlID: 58
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -166,7 +166,7 @@ MonoBehaviour:
   m_MinSize: {x: 234, y: 498}
   m_MaxSize: {x: 10004, y: 14048}
   vertical: 1
-  controlID: 52
+  controlID: 71
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -720,9 +720,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: c62a0000
-      m_LastClickedID: 10950
-      m_ExpandedIDs: 6ad4f5ffd6fbffff842a0000
+      m_SelectedIDs: 8a2a0000
+      m_LastClickedID: 10890
+      m_ExpandedIDs: b08eabfff6ebcefff457cfffba22d4ff4876d4ff7a22d6ffa822d6ffd622d6ff0423d6ff3223d6ff6023d6ff8e23d6ffbc23d6ffea23d6ff1824d6ff4624d6ff7424d6ffa224d6ffd024d6fffe24d6ff2c25d6ff5a25d6ff8825d6ffb625d6ffe425d6ff1226d6ff4026d6ff6e26d6ff9c26d6ffd6fbffff8a2a0000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -778,9 +778,9 @@ MonoBehaviour:
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 0.8074337, y: 16.212639, z: 0.022705078}
+    m_Target: {x: -0.35392088, y: 17.071775, z: 0.3974386}
     speed: 2
-    m_Value: {x: 0.8074337, y: 16.212639, z: 0.022705078}
+    m_Value: {x: -0.35392088, y: 17.071775, z: 0.3974386}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -812,9 +812,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 1.4855661
+    m_Target: 2.5710917
     speed: 2
-    m_Value: 1.4855661
+    m_Value: 2.5710917
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -890,20 +890,20 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/scripts/block
+    - Assets/scripts
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/scripts/block
+  - Assets/scripts
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\UnityProjects\TrianglesGame
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 022a0000
-    m_LastClickedID: 10754
-    m_ExpandedIDs: 00000000ce2700001c290000442a000000ca9a3b
+    m_SelectedIDs: 462a0000
+    m_LastClickedID: 10822
+    m_ExpandedIDs: 00000000d02700001e290000462a000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -931,7 +931,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000ce2700001c290000442a0000
+    m_ExpandedIDs: 00000000d02700001e290000462a0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

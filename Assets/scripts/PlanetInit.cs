@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Vuforia;
 
 public class PlanetInit : MonoBehaviour
 {
@@ -123,25 +125,20 @@ public class PlanetInit : MonoBehaviour
         } else
         if (LoadState == 5) {
             cavesInit();
-            //TODO: write loading bar from this moment
         } else
         if (LoadState == 6) {
             polish();
         } else
         if (LoadState == 7) {
-            calcLight();
-            main._m.loadTxtSet("Instancing");
-            LoadState++;
+            calcLight(true);
         } else
         if (LoadState == 8) {
-            instantiateInCam();
-            LoadState++;
-            main._m.loadStop();
+            instantiateInCam(true);
         } else {
             //If pLayer leaves the Planet
             if (LoadState > 10) {
                 if (transform.childCount == 0) {
-                    instantiateInCam();
+                    instantiateInCam(false);
                 }
             }
             LoadState++;
@@ -599,6 +596,7 @@ public class PlanetInit : MonoBehaviour
             AllCaves.Add(CalcSize);
         }
         bool endd = true;
+        main._m.loadSet(((float)LrNow)/AllCaves.Count);
         for (int i = LrNow; i < AllCaves.Count; i++) {
             caveGen(AllBlocks[rnd.Next(AllBlocks.Count)], AllCaves[i] - LastX);
             LastX = AllCaves[i];
@@ -612,6 +610,7 @@ public class PlanetInit : MonoBehaviour
             main._m.loadSet(0);
             main._m.loadTxtSet("Polishing edges");
             LoadState++;
+            LrNow = 0;
         }
     }
 
@@ -646,69 +645,99 @@ public class PlanetInit : MonoBehaviour
         }
         
     }
-
+    bool DonePrePolish = false;
     void polish()
     {
-        for (int i = 0; i < Depth; i++)
-            foreach (Block.BlockInit b in PlanetStruct[i]) {
-                int cnt1 = 0;
-                {
-                    if (b.Left.Left!=null && !b.Left.Left.Active)
-                        cnt1++;
-                    if (b.Right.Right != null && !b.Right.Right.Active)
-                        cnt1++;
-                    if (b.Up.Left != null && !b.Up.Left.Active)
-                        cnt1++;
-                    if (b.Up.Right != null && !b.Up.Right.Active)
-                        cnt1++;
-                    if (b.Down.Left != null && !b.Down.Left.Active)
-                        cnt1++;
-                    if (b.Down.Right != null && !b.Down.Right.Active)
-                        cnt1++;
-                    if (!b.Right.Active)
-                        cnt1++;
-                    if (!b.Left.Active)
-                        cnt1++;
-                    if (!b.Down.Active)
-                        cnt1++;
-                    if (!b.Up.Active)
-                        cnt1++;
-                    if (b.FlippedY) {
-                        if (b.Up.Right != null && b.Up.Right.Right != null && !b.Up.Right.Right.Active)
+        if (!DonePrePolish) {
+            main._m.loadSet(((float)LrNow) / Depth * 0.5f);
+            bool endd = true;
+            for (int i = LrNow; i < Depth; i++) {
+                foreach (Block.BlockInit b in PlanetStruct[i]) {
+                    int cnt1 = 0;
+                    {
+                        if (b.Left.Left != null && !b.Left.Left.Active)
                             cnt1++;
-                        if (b.Up.Left != null && b.Up.Left.Left != null && !b.Up.Left.Left.Active)
+                        if (b.Right.Right != null && !b.Right.Right.Active)
                             cnt1++;
-                    } else {
-                        if (b.Down.Right != null && b.Down.Right.Right != null && !b.Down.Right.Right.Active)
+                        if (b.Up.Left != null && !b.Up.Left.Active)
                             cnt1++;
-                        if (b.Down.Left != null && b.Down.Left.Left != null && !b.Down.Left.Left.Active)
+                        if (b.Up.Right != null && !b.Up.Right.Active)
                             cnt1++;
+                        if (b.Down.Left != null && !b.Down.Left.Active)
+                            cnt1++;
+                        if (b.Down.Right != null && !b.Down.Right.Active)
+                            cnt1++;
+                        if (!b.Right.Active)
+                            cnt1++;
+                        if (!b.Left.Active)
+                            cnt1++;
+                        if (!b.Down.Active)
+                            cnt1++;
+                        if (!b.Up.Active)
+                            cnt1++;
+                        if (b.FlippedY) {
+                            if (b.Up.Right != null && b.Up.Right.Right != null && !b.Up.Right.Right.Active)
+                                cnt1++;
+                            if (b.Up.Left != null && b.Up.Left.Left != null && !b.Up.Left.Left.Active)
+                                cnt1++;
+                        } else {
+                            if (b.Down.Right != null && b.Down.Right.Right != null && !b.Down.Right.Right.Active)
+                                cnt1++;
+                            if (b.Down.Left != null && b.Down.Left.Left != null && !b.Down.Left.Left.Active)
+                                cnt1++;
+                        }
                     }
+                    if (cnt1 >= 12 - CavesWidth)
+                        b.Active = false;
+                    if (cnt1 <= CavesWidth)
+                        b.Active = true;
                 }
-                if (cnt1>=12-CavesWidth)
-                    b.Active = false;
-                if (cnt1 <= CavesWidth)
-                    b.Active = true;
+                if (i > LrNow + 10) {
+                    LrNow = i++;
+                    endd = false;
+                    break;
+                }
             }
-        ls.Clear();
-        for (int i = 0; i <= Depth; i++) {
-            foreach (Block.BlockInit b in PlanetStruct[i]) {
-                b.LightPenetr = main._m.Blocks[b.num].LightPenetr;
-                b.BasicLight = main._m.Blocks[b.num].BasicLight;
-                b.Lightness = b.getBasicLight();
-                b.it = new LightedBlock(b);
-                ls.Add(b.it);
+            if (endd) {
+                DonePrePolish = true;
+                ls.Clear();
+                LrNow = 0;
+            }
+        } else {
+            main._m.loadSet(((float)LrNow) / Depth * 0.5f+0.5f);
+            bool endd = true;
+            for (int i = LrNow; i <= Depth; i++) {
+                foreach (Block.BlockInit b in PlanetStruct[i]) {
+                    b.LightPenetr = main._m.Blocks[b.num].LightPenetr;
+                    b.BasicLight = main._m.Blocks[b.num].BasicLight;
+                    b.Lightness = b.getBasicLight();
+                    b.it = new LightedBlock(b);
+                    ls.Add(b.it);
+                }
+                if (i > LrNow + 10) {
+                    LrNow = i++;
+                    endd = false;
+                    break;
+                }
+            }
+            if (endd) {
+                main._m.loadSet(0);
+                main._m.loadTxtSet("Baking Lights");
+                LoadState++;
+                LrNow = 0;
             }
         }
-        main._m.loadSet(0);
-        main._m.loadTxtSet("Baking Lights");
-        LoadState++;
     }
 
-    public void calcLight()
+    public void calcLight(bool pgen)
     {
         AllBlocks.Clear();
+        bool endd = true;
+        int i = LrNow;
+        if(pgen)
+            main._m.loadSet(((float)LrNow)/(6*Depth*Depth));
         while (ls.Count != 0) {
+            i++;
             LightedBlock now = ls.Max;
             if (now.b.Left != null) {
                 checkLightUpd(now, now.b.Left);
@@ -727,10 +756,31 @@ public class PlanetInit : MonoBehaviour
             }
             AllBlocks.Add(now.b);
             ls.Remove(now);
+            if (pgen)
+                if (i > LrNow + Depth * 10) {
+                    LrNow = i++;
+                    endd = false;
+                    break;
+                }
         }
-        foreach (Block.BlockInit b in AllBlocks)
-            b.UpdateLightness();
-        AllBlocks.Clear();
+        if (pgen) {
+            if (endd) {
+                foreach (Block.BlockInit b in AllBlocks)
+                    b.UpdateLightness();
+                AllBlocks.Clear();
+                main._m.loadSet(0);
+                plr.transform.position = new Vector3(0, Depth * 0.2f + 0.4f);
+                plr.GetComponent<PhysicsO>().active = false;
+                plr.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+                main._m.loadTxtSet("Instancing");
+                LoadState++;
+                LrNow = 0;
+            }
+        } else {
+            foreach (Block.BlockInit b in AllBlocks)
+                b.UpdateLightness();
+            AllBlocks.Clear();
+        }
     }
     void checkLightUpd(LightedBlock now, Block.BlockInit nn)
     {
@@ -811,18 +861,44 @@ public class PlanetInit : MonoBehaviour
                 }
             }
         }
-        calcLight();
+        calcLight(false);
     }
 
-    void instantiateInCam()
+    void instantiateInCam(bool pgen)
     {
-        for (int i = 0; i <= Depth; i++) {
-            foreach (Block.BlockInit b in PlanetStruct[i]) {
-                if (Vector3.Distance(b.pos, plr.transform.position) < main._m.MinRenderDistance || RenderAll) {
-                    b.createInstance();
-                    if (!RenderAll)
-                        b.BlockConnected.Watch = true;
+        if (!pgen) {
+            for (int i = 0; i <= Depth; i++) {
+                foreach (Block.BlockInit b in PlanetStruct[i]) {
+                    if (Vector3.Distance(b.pos, plr.transform.position) < main._m.MinRenderDistance || RenderAll) {
+                        b.createInstance();
+                        if (!RenderAll)
+                            b.BlockConnected.Watch = true;
+                    }
                 }
+            }
+        }
+        else {
+            bool endd = true;
+            main._m.loadSet(((float)LrNow) / Depth);
+            for (int i = LrNow; i <= Depth; i++) {
+                foreach (Block.BlockInit b in PlanetStruct[i]) {
+                    if (Vector3.Distance(b.pos, plr.transform.position) < main._m.MinRenderDistance || RenderAll) {
+                        b.createInstance();
+                        if (!RenderAll)
+                            b.BlockConnected.Watch = true;
+                    }
+                }
+                if (i > LrNow + 3) {
+                    LrNow = i+1;
+                    endd = false;
+                    break;
+                }
+            }
+            if (endd) {
+                LrNow = 0;
+                LoadState++;
+                plr.GetComponent<PhysicsO>().active = true;
+                main._m.loadStop();
             }
         }
     }
