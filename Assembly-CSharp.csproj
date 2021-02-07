@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="Assets\scripts\block\Block.cs" />
     <Compile Include="Assets\scripts\block\BlockCollHolder.cs" />
+    <Compile Include="Assets\scripts\InvController.cs" />
     <Compile Include="Assets\scripts\main.cs" />
     <Compile Include="Assets\scripts\PhysicsO.cs" />
     <Compile Include="Assets\scripts\PlanetInit.cs" />

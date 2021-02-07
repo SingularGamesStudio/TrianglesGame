@@ -66,7 +66,7 @@ public class main : MonoBehaviour
     public void loadTxtSet(string txt)
     {
         LoadTxt.transform.parent.gameObject.SetActive(true);
-        LoadFill.gameObject.SetActive(true);
+        LoadImg.gameObject.SetActive(true);
         LoadTxt.text = txt;
     }
     public void loadStop()
