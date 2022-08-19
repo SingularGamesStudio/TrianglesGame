@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BlockCollHolder : MonoBehaviour
+public class BlockCollHolder : UnityEngine.MonoBehaviour
 {
     [Header("System variAllBlockses")]
     public Block Parent;
